@@ -34,10 +34,10 @@ for buffsize in arbiter_buffer_sizes:
 # generate oject file of intmap
 run(["clang++", "-c", f"{config.vamos_compiler_DIR}/compiler/cfiles/intmap.cpp" ], check=True)
 
-COMPILE_SCRIPT= f"{CURRENT_PATH}/compile_primes6.sh"
+COMPILE_SCRIPT= f"{config.vamos_compiler_DIR}/gen/compile.sh"
 for buffsize in arbiter_buffer_sizes:
         # compile c files
-        run(["bash", COMPILE_SCRIPT, f"{CURRENT_PATH}/programs/monitor_{buffsize}.c" ], check=True)
+        run(["bash", COMPILE_SCRIPT, f"{CURRENT_PATH}/programs/monitor_{buffsize}.c", "intmap.o", "compiler_utils.o", "-lstdc++" ], check=True)
 
         # move exec to /primes/programs
         run(["mv", "monitor", f"{CURRENT_PATH}/programs/monitor{buffsize}" ], check=True)
@@ -45,7 +45,6 @@ for buffsize in arbiter_buffer_sizes:
 
 # compile empty monitor
 
-COMPILE_SCRIPT= f"{config.vamos_compiler_DIR}/gen/compile.sh"
 for buffsize in arbiter_buffer_sizes:
     # compile c files
     new_env = os.environ.copy()

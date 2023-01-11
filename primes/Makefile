@@ -8,13 +8,13 @@ all: prepare
 
 COMPILER_CFILES=${vamos_compiler_DIR}/compiler/cfiles/
 
-${COMPILER_CFILES}/compiler_utils.o: ${COMPILER_CFILES}/compiler_utils.c
-	$(CC) -I${shamon_INCLUDE_DIRS} -c $< -o $@
+compiler_utils.o: ${COMPILER_CFILES}/compiler_utils.c
+	$(CC) -I${shamon_INCLUDE_DIRS} -c $< -o compiler_utils.o
 
-${COMPILER_CFILES}/intmap.o: ${COMPILER_CFILES}/intmap.cpp
-	$(CXX) -c $< -o $@
+intmap.o: ${COMPILER_CFILES}/intmap.cpp
+	$(CXX) -c $< -o intmap.o
 
-prepare: primes primes-bad primes-python ${COMPILER_CFILES}/compiler_utils.o ${COMPILER_CFILES}/intmap.o
+prepare: primes primes-bad primes-python compiler_utils.o intmap.o
 	python3 shm_prepare_programs.py
 
 primes: primes.c
