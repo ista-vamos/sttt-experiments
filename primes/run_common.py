@@ -4,9 +4,13 @@ from sys import argv
 from tempfile import mktemp
 from os.path import dirname, basename, abspath, join as pathjoin
 
+import sys
+sys.path.append('..')
+import config
+
 SHAMONPATH=abspath(pathjoin(dirname(argv[0]), "../..")) # "/opt/shamon"
 # assume that dynamorio is in the same folder as shamon
-DRIOPATH=abspath(pathjoin(SHAMONPATH, "..", "dynamorio/"))
+DRIOPATH=abspath(pathjoin(config.vamos_sources_DIR, "ext/dynamorio/"))
 
 DRRUN=f"{DRIOPATH}/build/bin64/drrun"
 DRIO=[DRRUN, "-root",  f"{DRIOPATH}/build/",
