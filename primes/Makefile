@@ -5,7 +5,6 @@ CFLAGS=-O3
 
 all: prepare
 
-
 COMPILER_CFILES=${vamos_compiler_DIR}/compiler/cfiles/
 
 compiler_utils.o: ${COMPILER_CFILES}/compiler_utils.c
@@ -14,21 +13,12 @@ compiler_utils.o: ${COMPILER_CFILES}/compiler_utils.c
 intmap.o: ${COMPILER_CFILES}/intmap.cpp
 	$(CXX) -c $< -o intmap.o
 
-prepare: primes primes-bad primes-python compiler_utils.o intmap.o
+prepare: primes primes-bad  compiler_utils.o intmap.o
 	python3 shm_prepare_programs.py
 
 primes: primes.c
 
 primes-bad: primes-bad.c
-
-#primes-2: primes-2.c
-
-#primes-java: primes.java
-#        javac -Werror $<
-
-primes-python: primes.py
-	python3 -O -m compileall *.py
-	#python3 -O -m compileall -o 1 *.py
 
 experiments: prepare
 	./experiments.sh
