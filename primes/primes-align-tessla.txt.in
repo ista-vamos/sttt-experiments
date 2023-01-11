@@ -14,7 +14,7 @@ buffer group Ps : Primes order by pos includes P[all]
 
 globals
 $$
-    #include "SRCDIR/compiler/cfiles/intmap.h"
+    #include "compiler/cfiles/intmap.h"
     intmap buf;
     int count = 0;
 

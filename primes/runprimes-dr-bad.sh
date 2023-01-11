@@ -3,14 +3,13 @@
 set -e
 
 DIR=$(dirname $0)
+source $DIR/../setup-vars.sh
 
-SOURCESDIR="$DIR/../../sources"
+SOURCESDIR="$vamos_sources_DIR"
 NUM=$1
 test -z $NUM && NUM=10000
 
-EXE=$DIR/primes
-
-CMAKE_CACHE="$DIR/../../CMakeCache.txt"
+CMAKE_CACHE="$SOURCESDIR/CMakeCache.txt"
 LINE=$(grep "DynamoRIO_DIR" "$CMAKE_CACHE")
 DRIOROOT="${LINE#*=}/.."
 # fallback for our machine...
@@ -28,13 +27,13 @@ $DRRUN -root $DRIOROOT \
 	-opt_cleancall 2 -opt_speed\
 	-c $SOURCESDIR/drregex/libdrregex.so\
 	/primes1 prime '#([0-9]+): ([0-9]+)' ii --\
-	$EXE $NUM &
+	$DIR/primes $NUM &
 
 $DRRUN -root $DRIOROOT \
 	-opt_cleancall 2 -opt_speed\
 	-c $SOURCESDIR/drregex/libdrregex.so\
 	/primes2 prime '#([0-9]+): ([0-9]+)' ii --\
-	$EXE-bad $NUM 10&
+	$DIR/primes-bad $NUM 10&
 
 wait
 wait

@@ -16,6 +16,8 @@ intmap.o: ${COMPILER_CFILES}/intmap.cpp
 prepare: primes primes-bad  compiler_utils.o intmap.o
 	python3 shm_prepare_programs.py
 
+prepare-tessla: primes primes-bad  compiler_utils.o intmap.o
+
 primes: primes.c
 
 primes-bad: primes-bad.c
@@ -27,7 +29,7 @@ experiments-tessla:
 	./experiments-tessla.sh
 
 clean:
-	-rm *.o primes primes-2 primes-bad
+	-rm *.o primes primes-bad
 	-rm -rf __pycache__
 
 .PHONY: clean all experiments experiments-tessla

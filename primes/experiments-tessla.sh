@@ -3,16 +3,17 @@
 set -x
 set -e
 
+
 rm -f /tmp/log.txt
 
 cd $(dirname 0)
 
-SRCDIR="$(readlink -f $(dirname $0)/../..)"
-VLCC="python3 $SRCDIR/compiler/main.py"
-GENCC="$SRCDIR/gen/compile.sh"
-TESSLA_JAR=../tessla/tessla-rust.jar
-
+source ../setup-vars.sh
 source ../setup.sh
+
+VLCC="python3 $vamos_compiler_DIR/compiler/main.py"
+GENCC="$vamos_compiler_DIR/gen/compile.sh"
+TESSLA_JAR="$vamos_compiler_DIR/compiler/tessla-rust.jar"
 
 # compile the tessla monitor
 java -jar $TESSLA_JAR compile-rust primes.tessla -b tessla-monitor
@@ -23,13 +24,10 @@ if [ "$PRIMES_10000" = "yes" ]; then
 fi
 
 for i in `seq 1 $REPEAT`; do
-for SHM_BUFSIZE in 8; do
 #for SHM_BUFSIZE in 8 16; do
-        make clean -j  -C $SRCDIR
-        make -j -C $SRCDIR
-	make primes
-
-	g++ -O3 -c $SRCDIR/compiler/cfiles/intmap.cpp
+for SHM_BUFSIZE in 8; do
+	make clean
+	make prepare-tessla
 
 	SPEC="primes-tessla.txt"
         for ARBITER_BUFSIZE in 4 8 16 32 64 128 256 512 1024; do
@@ -54,7 +52,7 @@ for SHM_BUFSIZE in 8; do
 
 		# compile it
 		$VLCC $SPEC -b $ARBITER_BUFSIZE -o monitor-tessla.c
-		$GENCC monitor-tessla.c ./intmap.o $SRCDIR/compiler/cfiles/compiler_utils.c -lstdc++
+		$GENCC monitor-tessla.c -I$vamos_compiler_DIR ./intmap.o ./compiler_utils.o -lstdc++
 		mv monitor vamos-tessla
 
                 #for PRIMES_NUM in 10000 20000 30000 40000; do

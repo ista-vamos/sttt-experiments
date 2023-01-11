@@ -3,12 +3,13 @@
 set -e
 
 DIR=$(dirname $0)
+source $DIR/../setup-vars.sh
 
-SOURCESDIR="$DIR/../../sources"
+SOURCESDIR="$vamos_sources_DIR"
 NUM=$1
 test -z $NUM && NUM=10000
 
-CMAKE_CACHE="$DIR/../../CMakeCache.txt"
+CMAKE_CACHE="$SOURCESDIR/CMakeCache.txt"
 LINE=$(grep "DynamoRIO_DIR" "$CMAKE_CACHE")
 DRIOROOT="${LINE#*=}/.."
 # fallback for our machine...
