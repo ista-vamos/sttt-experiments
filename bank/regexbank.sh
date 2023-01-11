@@ -5,14 +5,35 @@ set -e
 NUM=$1
 shift
 
-DRIOPATH="/opt/vamos/dynamorio/"
-DRRUN="$DRIOPATH/build/bin64/drrun\
-	-root $DRIOPATH/build/\
-	-c ../../sources/drregex/libdrregex-mt.so"
+source ../setup-vars.sh
+
+CMAKE_CACHE="$vamos_sources_DIR/CMakeCache.txt"
+LINE=$(grep "DynamoRIO_DIR" "$CMAKE_CACHE")
+DRIOROOT="${LINE#*=}/.."
+if echo $DRIOROOT | grep -q "^/"; then
+	# absolute path
+	true
+else
+	DRIOROOT="$vamos_sources_DIR/$DRIOROOT"
+fi
+
+# fallback for our machine...
+if [ ! -d $DRIOROOT ]; then
+	DRIOROOT=/opt/vamos/dynamorio/build
+fi
+
+DRRUN="$DRIOROOT/bin64/drrun"
+if [ ! -x $DRRUN ]; then
+	echo "Could not find drrun"
+	exit 1
+fi
+
+DRRUN="$DRRUN -root $DRIOROOT/\
+	-c $vamos_sources_DIR/drregex/libdrregex-mt.so"
 
 MONITOR=$(dirname $0)/monitor-vamos
 if [ $(basename "$0") == "regexbank-dump.sh" ]; then
-	MONITOR=$(dirname $0)/../../monitors/monitor-generic
+	MONITOR=$shamon_LIBRARIES_DIR_core/../../monitors/monitor-generic
 fi
 
 rm -f /tmp/fifo{A,B}
