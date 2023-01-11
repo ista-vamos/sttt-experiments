@@ -36,7 +36,8 @@ intmap.o: $(vamos_compiler_DIR)/compiler/cfiles/intmap.*
 	g++ -c $< -o $@
 
 monitor$(BUFSIZE): tesslamon/target/release/libmonitor.a bankmonitor-$(BUFSIZE).c intmap.o
-	NOLTO=yes $(GENCC) bankmonitor-$(BUFSIZE).c intmap.o -lstdc++ tesslamon/target/release/libmonitor.a -ldl
+	#NOLTO=yes $(GENCC) bankmonitor-$(BUFSIZE).c intmap.o -lstdc++ tesslamon/target/release/libmonitor.a -ldl
+	$(GENCC) bankmonitor-$(BUFSIZE).c intmap.o -lstdc++ tesslamon/target/release/libmonitor.a -ldl
 	mv monitor monitor$(BUFSIZE)
 
 experiments: ../bank/interact ../bank/bank
