@@ -1,4 +1,9 @@
+#legacy
 COMPILER_DIR=@vamos_compiler_DIR@
+SOURCES_DIR=@vamos_sources_DIR@
+
+vamos_compiler_DIR=@vamos_compiler_DIR@
+vamos_sources_DIR=@vamos_sources_DIR@
 
 shamon_LIBRARIES_DIRS_core="@shamon_LIBRARIES_DIRS_core@"
 shamon_LIBRARIES_DIRS_shmbuf="@shamon_LIBRARIES_DIRS_shmbuf@"
