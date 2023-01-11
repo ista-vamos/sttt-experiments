@@ -1,5 +1,8 @@
-import os
+import os, sys
 from subprocess import run, TimeoutExpired
+
+sys.path.append('..')
+import config
 
 arbiter_buffer_sizes = [4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]
 # generate shamon programs with different buffer size
@@ -20,8 +23,8 @@ for buffsize in arbiter_buffer_sizes:
         file.close()
 
 CURRENT_PATH = os.getcwd()
-assert("/".join(CURRENT_PATH.split("/")[-3:]) == 'shamon/experiments/primes') # assert we are currently on shamon/experiments/primes
-COMPILER_PATH = f"{CURRENT_PATH}/../../compiler/main.py"
+assert("/".join(CURRENT_PATH.split("/")[-2:]) == 'experiments/primes') # assert we are currently on shamon/experiments/primes
+COMPILER_PATH = f"{config.vamos_compiler_DIR}/compiler/main.py"
 
 # compile shamon programs into c programs
 for buffsize in arbiter_buffer_sizes:
@@ -29,9 +32,9 @@ for buffsize in arbiter_buffer_sizes:
 
 
 # generate oject file of intmap
-run(["g++", "-c", f"{CURRENT_PATH}/../../compiler/cfiles/intmap.cpp" ], check=True)
+run(["clang++", "-c", f"{config.vamos_compiler_DIR}/compiler/cfiles/intmap.cpp" ], check=True)
 
-COMPILE_SCRIPT= f"{CURRENT_PATH}/../../gen/compile_primes6.sh"
+COMPILE_SCRIPT= f"{CURRENT_PATH}/compile_primes6.sh"
 for buffsize in arbiter_buffer_sizes:
         # compile c files
         run(["bash", COMPILE_SCRIPT, f"{CURRENT_PATH}/programs/monitor_{buffsize}.c" ], check=True)
@@ -42,7 +45,7 @@ for buffsize in arbiter_buffer_sizes:
 
 # compile empty monitor
 
-COMPILE_SCRIPT= f"{CURRENT_PATH}/../../gen/compile.sh"
+COMPILE_SCRIPT= f"{config.vamos_compiler_DIR}/gen/compile.sh"
 for buffsize in arbiter_buffer_sizes:
     # compile c files
     new_env = os.environ.copy()

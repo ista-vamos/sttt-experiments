@@ -8,6 +8,9 @@ from measure import *
 from sys import argv
 from run_common import *
 
+sys.path.append('..')
+import config
+
 NUM="10000"
 if len(argv) > 2:
     BS = argv[1]
@@ -55,10 +58,10 @@ lprint(f"--  Using empty monitor: {EMPTY_MONITOR_PATH} --")
 dm_drio_consume_time_c1 = ParseTime()
 dm_drio_consume_time_c2 = ParseTime()
 measure("'Empty monitor C/C for primes' DynamoRIO sources",
-        [Command(*DRIO, "-c", f"{SHAMONPATH}/sources/drregex/libdrregex.so",
+        [Command(*DRIO, "-c", f"{config.vamos_sources_DIR}/drregex/libdrregex.so",
                  primes1, "Prime", "#([0-9]+): ([0-9]+)", "ii", "--",
                  f"{PRIMESPATH}/primes", NUM).withparser(dm_drio_consume_time_c1),
-         Command(*DRIO, "-c", f"{SHAMONPATH}/sources/drregex/libdrregex.so",
+         Command(*DRIO, "-c", f"{config.vamos_sources_DIR}/drregex/libdrregex.so",
                  primes2, "Prime", "#([0-9]+): ([0-9]+)", "ii", "--",
                  f"{PRIMESPATH}/primes", NUM).withparser(dm_drio_consume_time_c2)],
         [Command(EMPTY_MONITOR_PATH, f"Left:drregex:{primes1}", f"Right:drregex:{primes2}",
@@ -84,10 +87,10 @@ dm_drio_time_c1 = ParseTime()
 dm_drio_time_c2 = ParseTime()
 dm_drio_stats2 = ParseStats()
 measure("'Differential monitor C/C for primes' DynamoRIO sources",
-        [Command(*DRIO, "-c", f"{SHAMONPATH}/sources/drregex/libdrregex.so",
+        [Command(*DRIO, "-c", f"{config.vamos_sources_DIR}/drregex/libdrregex.so",
                  primes1, "Prime", "#([0-9]+): ([0-9]+)", "ii", "--",
                  f"{PRIMESPATH}/primes", NUM).withparser(dm_drio_time_c1),
-         Command(*DRIO, "-c", f"{SHAMONPATH}/sources/drregex/libdrregex.so",
+         Command(*DRIO, "-c", f"{config.vamos_sources_DIR}/drregex/libdrregex.so",
                  primes2, "Prime", "#([0-9]+): ([0-9]+)", "ii", "--",
                  f"{PRIMESPATH}/primes", NUM).withparser(dm_drio_time_c2)],
         [Command("/bin/time", "-f", "Wall-time: %e", MONITOR_PATH, f"P_0:drregex:{primes1}", f"P_1:drregex:{primes2}",
@@ -101,10 +104,10 @@ dm_drio_bad_time_c1 = ParseTime()
 dm_drio_bad_time_c2 = ParseTime()
 dm_drio_bad_stats2 = ParseStats()
 measure("'Differential monitor C/C for primes' DynamoRIO sources, 10% errors",
-        [Command(*DRIO, "-c", f"{SHAMONPATH}/sources/drregex/libdrregex.so",
+        [Command(*DRIO, "-c", f"{config.vamos_sources_DIR}/drregex/libdrregex.so",
                  primes1, "Prime", "#([0-9]+): ([0-9]+)", "ii", "--",
                  f"{PRIMESPATH}/primes", NUM).withparser(dm_drio_bad_time_c1),
-         Command(*DRIO, "-c", f"{SHAMONPATH}/sources/drregex/libdrregex.so",
+         Command(*DRIO, "-c", f"{config.vamos_sources_DIR}/drregex/libdrregex.so",
                  primes2, "Prime", "#([0-9]+): ([0-9]+)", "ii", "--",
                  f"{PRIMESPATH}/primes-bad", NUM, str(int(NUM)/10)).withparser(dm_drio_bad_time_c2)],
          [Command("/bin/time", "-f", "Wall-time: %e", MONITOR_PATH, f"P_0:drregex:{primes1}",

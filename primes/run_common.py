@@ -75,7 +75,7 @@ class ParseTime:
         if not foundtime or\
             (self.withwaitstats and not foundwaited):
             log("-- ERROR while parsing stderr for time info:",
-                "-- ERROR while parsing time (see log.txt)--")
+                "-- ERROR while parsing time (see /tmp/log.txt)--")
             log(serr)
             raise RuntimeError("Did not find right values")
 
@@ -141,7 +141,7 @@ class ParseStats:
            dl + sl + pl == 0 or dl + sl + pl != dr + sr + pr:
             log(out)
             lprint(f"left: {total_left} {(dl, sl, pl)}, right:{total_right} {(dr, sr, pr)}, errs: {errs}")
-            lprint("-- ERROR while parsing monitor output (see log.txt)--")
+            lprint("-- ERROR while parsing monitor output (see /tmp/log.txt)--")
             lprint("Did not find right values", color=RED)
             
             raise RuntimeError("Did not find right values")

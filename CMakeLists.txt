@@ -22,13 +22,21 @@ get_filename_component(shamon_LIBRARIES_DIRS_shmbuf ${shamon_shamon-shmbuf} DIRE
 get_filename_component(shamon_LIBRARIES_DIRS_streams ${shamon_shamon-streams} DIRECTORY)
 
 if (vamos_compiler_DIR)
+	# make sure the user-provided path is aboslute
+	get_filename_component(vamos_compiler_DIR ${vamos_compiler_DIR} ABSOLUTE)
 	message(STATUS "vamos_compiler_DIR=${vamos_compiler_DIR}")
 else()
 	message(FATAL_ERROR "Need to set vamos_compiler_DIR variable")
 endif()
 
-# make sure the user-provided path is aboslute
-get_filename_component(vamos_compiler_DIR ${vamos_compiler_DIR} ABSOLUTE)
+if (vamos_sources_DIR)
+	# make sure the user-provided path is aboslute
+	get_filename_component(vamos_sources_DIR ${vamos_sources_DIR} ABSOLUTE)
+	message(STATUS "vamos_sources_DIR=${vamos_sources_DIR}")
+else()
+	message(FATAL_ERROR "Need to set vamos_sources_DIR variable")
+endif()
+
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Makefile.config.in
 	       ${CMAKE_CURRENT_SOURCE_DIR}/Makefile.config)
