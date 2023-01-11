@@ -34,5 +34,3 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/setup-vars.sh.in
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.py.in
 	       ${CMAKE_CURRENT_SOURCE_DIR}/config.py)
 
-add_executable(gennums gennums.c)
-target_compile_options(gennums PRIVATE -O3)

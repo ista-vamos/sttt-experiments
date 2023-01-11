@@ -1,1 +1,1 @@
-COMPILER_DIR=/home/marek/vamos/vamos-compiler
+COMPILER_DIR=../vamos-compiler
