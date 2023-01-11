@@ -16,8 +16,9 @@ if echo $DRIOROOT | grep -q "^/"; then
 else
 	DRIOROOT="$vamos_sources_DIR/$DRIOROOT"
 fi
-
-# fallback for our machine...
+if [ ! -d $DRIOROOT ]; then
+       DRIOROOT="$vamos_sources_DIR/ext/dynamorio/build"
+fi
 if [ ! -d $DRIOROOT ]; then
 	DRIOROOT=/opt/vamos/dynamorio/build
 fi
