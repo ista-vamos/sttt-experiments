@@ -8,6 +8,8 @@ set(CMAKE_C_EXTENSIONS OFF)
 
 find_package(shamon REQUIRED)
 
+# make sure the path is aboslute (could be provided by the user)
+get_filename_component(shamon_DIR ${shamon_DIR} ABSOLUTE)
 include_directories(${shamon_INCLUDE_DIRS})
 
 get_target_property(shamon_shamon-lib shamon-lib LOCATION)
@@ -24,6 +26,9 @@ if (vamos_compiler_DIR)
 else()
 	message(FATAL_ERROR "Need to set vamos_compiler_DIR variable")
 endif()
+
+# make sure the user-provided path is aboslute
+get_filename_component(vamos_compiler_DIR ${vamos_compiler_DIR} ABSOLUTE)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Makefile.config.in
 	       ${CMAKE_CURRENT_SOURCE_DIR}/Makefile.config)
