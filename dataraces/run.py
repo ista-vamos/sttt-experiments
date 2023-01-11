@@ -6,6 +6,9 @@ from os.path import dirname, abspath, basename, isfile
 
 from randomharness import gen_harness
 
+sys.path.append('..')
+import config
+
 opt = "opt"
 link = "llvm-link"
 
@@ -23,23 +26,6 @@ CSVFILE="results.csv"
 def cmd(args):
     print("> ", " ".join(args))
     run(args, check=True)
-
-
-# def parse_yml_input(path):
-#     try:
-#         from yaml import safe_load as yaml_safe_load, YAMLError
-#     except ImportError:
-#         warn("Cannot import from YAML package")
-#         return None
-
-#     with open(path, "r") as stream:
-#         try:
-#             spec = yaml_safe_load(stream)
-#         except YAMLError as exc:
-#             warn(exc)
-#             return None
-#     return spec
-
 
 def parse_time(tm):
     parts = tm.split(":")
@@ -88,7 +74,7 @@ def compile_file(infile):
     # compile VAMOS
     cmd(
         [
-            f"{DIR}/../../sources/tsan/compile.py",
+            f"{config.vamos_sources_DIR}/tsan/compile.py",
             infile,
             "-noinst",
             harness,

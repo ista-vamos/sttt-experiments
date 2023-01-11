@@ -49,7 +49,7 @@ for buffsize in arbiter_buffer_sizes:
     # compile c files
     new_env = os.environ.copy()
     new_env["ARBITER_BUFSIZE"] = str(buffsize)
-    run(["bash", COMPILE_SCRIPT, f"{CURRENT_PATH}/emptymonitor.c"],
+    run(["bash", COMPILE_SCRIPT, f"{CURRENT_PATH}/emptymonitor.c", f"-DSHMBUF_ARBITER_BUFSIZE={buffsize}"],
         check=True, env=new_env)
 
     # move exec to /primes/programs
