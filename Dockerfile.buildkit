@@ -3,13 +3,17 @@ FROM ubuntu:20.04
 RUN set -e
 
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get -y update  &&\
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get -y update  &&\
     apt-get install -y python3 make cmake gcc g++ git lsb-release wget software-properties-common gnupg
 
 WORKDIR /tmp
 RUN wget https://apt.llvm.org/llvm.sh
 RUN chmod +x llvm.sh
-RUN ./llvm.sh 14
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    ./llvm.sh 14
 
 RUN ln -s /usr/bin/clang-14 /usr/bin/clang
 RUN ln -s /usr/bin/clang++-14 /usr/bin/clang++
@@ -28,7 +32,9 @@ RUN make -j4
 
 # Other packages needed by the experiments
 
-RUN apt-get install -y time valgrind openjdk-17-jdk cargo
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get install -y time valgrind openjdk-17-jdk cargo
 
 # copy the experiments
 COPY . /opt/vamos/experiments
