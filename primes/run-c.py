@@ -8,6 +8,7 @@ from measure import *
 from sys import argv
 from run_common import *
 
+import sys
 sys.path.append('..')
 import config
 
