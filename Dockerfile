@@ -34,7 +34,13 @@ RUN make -j4
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt install -y time valgrind openjdk-17-jdk cargo libclang-rt-14-dev
+    apt install -y time valgrind openjdk-17-jdk cargo
+
+# for some reason we cannot install this normally
+RUN apt-get download -y libclang-rt-14-dev
+RUN ar x libclang-rt-14*.deb
+RUN tar xf data.tar.xz ./usr/lib/llvm-14/lib/clang/14.0.6/lib/linux/libclang_rt.tsan-x86_64.a
+RUN mv ./usr/lib/llvm-14/lib/clang/14.0.6/lib/linux/libclang_rt.tsan-x86_64.a /usr/lib/llvm-14/lib/clang/14.0.6/lib/linux/libclang_rt.tsan-x86_64.a
 
 # copy the experiments
 COPY . /opt/vamos/experiments
