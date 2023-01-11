@@ -4,7 +4,7 @@
 from tempfile import mkdtemp, mktemp
 from shutil import rmtree
 from os import chdir, unlink
-from os.path import dirname
+from os.path import dirname, abspath
 from measure import *
 from sys import argv
 from run_common import *
@@ -21,7 +21,7 @@ else:
     print(f"args: shm-buffer-size [max-number (default: {NUM})]")
     exit(1)
 
-DIR=f"{dirname(__file__)}"
+DIR=f"{abspath(dirname(__file__))}"
 SOURCE_EXE=f"{DIR}/source"
 MONITOR_EXE=f"{DIR}/monitor"
 MONITOR_TXT_IN=f"{DIR}/monitor.txt.in"
