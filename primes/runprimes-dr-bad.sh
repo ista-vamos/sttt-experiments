@@ -12,7 +12,9 @@ test -z $NUM && NUM=10000
 CMAKE_CACHE="$SOURCESDIR/CMakeCache.txt"
 LINE=$(grep "DynamoRIO_DIR" "$CMAKE_CACHE")
 DRIOROOT="${LINE#*=}/.."
-# fallback for our machine...
+if [ ! -d $DRIOROOT ]; then
+       DRIOROOT="$SOURCESDIR/ext/dynamorio/build"
+fi
 if [ ! -d $DRIOROOT ]; then
 	DRIOROOT=/opt/dynamorio/build
 fi
