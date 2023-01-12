@@ -23,7 +23,6 @@ for buffsize in arbiter_buffer_sizes:
         file.close()
 
 CURRENT_PATH = os.getcwd()
-assert("/".join(CURRENT_PATH.split("/")[-2:]) == 'experiments/primes') # assert we are currently on shamon/experiments/primes
 COMPILER_PATH = f"{config.vamos_compiler_DIR}/compiler/main.py"
 
 # compile shamon programs into c programs
