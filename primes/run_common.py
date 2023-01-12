@@ -8,23 +8,19 @@ import sys
 sys.path.append('..')
 import config
 
-SHAMONPATH=abspath(pathjoin(dirname(argv[0]), "../..")) # "/opt/shamon"
+SELFPATH=abspath(dirname(__file__))
 # assume that dynamorio is in the same folder as shamon
 DRIOPATH=abspath(pathjoin(config.vamos_sources_DIR, "ext/dynamorio/"))
 
 DRRUN=f"{DRIOPATH}/build/bin64/drrun"
 DRIO=[DRRUN, "-root",  f"{DRIOPATH}/build/",
              "-opt_cleancall", "2", "-opt_speed"]
-PRIMESPATH=f"{SHAMONPATH}/experiments/primes"
-PRIMESMONSRC=f"{SHAMONPATH}/mmtest/monprimes.c"
-EMPTYMONSRC=f"{SHAMONPATH}/mmtest/mmempty.c"
-COMPILESH=f"{SHAMONPATH}/gen/compile_primes6.sh"
+PRIMESPATH=f"{SELFPATH}/"
 
 csvlog = None
 csvlogf = None
 
 # check if the monitor is a known monitor
-# assert basename(PRIMESMONSRC) in ("mmprimes.c", "monprimes.c", "mmprimes-man.c"), PRIMESMONSRC
 
 def open_csvlog(BS, ABS, NUM):
     csv_name = f"times-{BS}-{ABS}-{NUM}.csv"
