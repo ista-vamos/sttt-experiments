@@ -47,3 +47,6 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/setup-vars.sh.in
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.py.in
 	       ${CMAKE_CURRENT_SOURCE_DIR}/config.py)
 
+add_custom_target(gen-readme
+		  COMMAND pandoc -f markdown -t HTML -o README.html README.md
+		  COMMAND pandoc -f markdown -t pdf -o README.pdf README.md)
