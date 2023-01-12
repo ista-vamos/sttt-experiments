@@ -10,6 +10,6 @@ scripts/run-experiments.sh
 cd $(dirname $0)
 mv setup-old.sh setup.sh
 
-#cd plots
-#make plots
+make plots -C plots
+make plots -C original
 

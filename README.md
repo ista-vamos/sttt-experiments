@@ -36,19 +36,27 @@ faster builds:
 DOCKER_BUILDKIT=1 docker build . -f Dockerfile.buildkit -t vamos:fase
 ```
 
+The building process can take more than 10 minutes, based on the used machine
+and the speed of the internet connection.
+
 To run the built image, use:
 
 ```
-docker run -ti vamos:fase
+docker run -ti -v "$(pwd)/results":/opt/results vamos:fase
 ```
+
+This command starts a docker container with experiments ready to run and gives
+you a shell in this container. It also creates a folder `results/` in the
+current directory to the container where will the results of the experiments
+appear. Feel free to change `$(pwd)/results` to a directory of your choice.
 
 Once in the docker container, continue with the test instructions below.
 
 ## Test Instructions
 
 We have prepared script to run two versions of experiments: short and full
-experiments. Short experiments run just a few minutes, but the results
-may slightly diverge from the results in the paper. You can run short experiments
+experiments. Short experiments run just a few minutes, but the results may
+slightly diverge from the results in the paper. You can run short experiments
 with:
 
 ```
@@ -63,15 +71,24 @@ Full experiments are run with
 
 Full experiments can run for several hours and should reproduce numbers from
 the paper. Note that running full experiments will overwrite results of short
-experiments.
+experiments. A guide on how to run just some experiments is at the end of this
+document.
 
-Once (short or full) experiments are finished, you can generate plots in the
-PDF format as follows:
+Once (short or full) experiments are finished, plots in the PDF format should
+be automatically generated and put in the results folder from where the docker
+was started (or in a folder of your choice if you changed the command). The
+plots are named after the figures in the paper.
 
-[TBD]
+You can also generate the plots manually by running make in the `plots`
+directory. Moreover, you can generate the plots from the original data that we
+measured. The data are in `plots/original-data` and you generate the plots by
 
-You can also generate the plots from the original data that we measured.
-The data are in [TBD] and you can generate the plots by [TBD].
+```
+cd plots
+make original
+```
+
+For more details about plots, check the README.md inside `plots` directory.
 
 ## Running just some experiments
 
