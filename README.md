@@ -88,16 +88,17 @@ cp scripts/setup-short.sh setup.sh   # short experiments
 cp scripts/setup-full.sh setup.sh   # full experiments
 ```
 
-Then, go into directories with experiments and run `make experiments` in the directory:
+Then, go into directories with experiments and run `make experiments` in the directory, for example:
 
 ```
 cd scalability
 make experiments
 ```
 
-Available experiments are `scalability`, `primes`, `bank`, `bank-tessla`, and
-`dataraces`. The only exception from this pattern are primes-tessla experiments
-that are run from the `primes` directory using `make experiments-tessla`:
+Available experiment directories are `scalability`, `primes`, `bank`,
+`bank-tessla`, and `dataraces`. The only exception from this pattern are
+primes-tessla experiments that are run from the `primes` directory using `make
+experiments-tessla`:
 
 ```
 cd primes
