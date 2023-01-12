@@ -5,8 +5,8 @@ NOTE: this README is available also in HTML or PDF format.
 ## Summary
 
 This artifact contains a prototype of a runtime monitoring middleware called
-VAMOS as discussed in the FASE 2023 paper "VAMOS: Middleware for Best-Effort
-Third-Party Monitoring" by Marek Chalupa, Stefanie Muroya Lei, Fabian
+VAMOS as discussed in the FASE 2023 paper _VAMOS: Middleware for Best-Effort
+Third-Party Monitoring_ by Marek Chalupa, Stefanie Muroya Lei, Fabian
 Muehlboeck, and Thomas A. Henzinger. The artifact consist of the software,
 benchmarks discussed in the paper, and a set of scripts to run experiments
 and present the results.
