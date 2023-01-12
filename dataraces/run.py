@@ -19,7 +19,7 @@ timecmd = "/bin/time"
 
 DIR = abspath(dirname(sys.argv[0]))
 TIMEOUT = 5
-REPEAT_NUM = 10
+REPEAT_NUM = 7
 CSVFILE="results.csv"
 
 
