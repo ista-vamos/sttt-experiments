@@ -54,30 +54,27 @@ Once in the docker container, continue with the test instructions below.
 
 ## Test Instructions
 
-We have prepared script to run two versions of experiments: short and full
-experiments. Short experiments run just a few minutes, but the results may
-slightly diverge from the results in the paper. You can run short experiments
-with:
+We have prepared script to run three versions of experiments: short, mid, and
+full experiments. Short experiments run just a few minutes, but the results may
+diverge from the results in the paper. Mid experiments run longer but still in
+the order of tens of minutes. Full experiments can run for several hours and
+should reproduce numbers from the paper. Note that running experiments will
+overwrite results of previous runs of experiments.
+
+You can run short/mid/full experiments with these scripts:
 
 ```
 ./short-experiments.sh
-```
-
-Full experiments are run with
-
-```
+./mid-experiments.sh
 ./full-experiments.sh
 ```
 
-Full experiments can run for several hours and should reproduce numbers from
-the paper. Note that running full experiments will overwrite results of short
-experiments. A guide on how to run just some experiments is at the end of this
-document.
+A guide on how to run just some experiments is at the end of this document.
 
-Once (short or full) experiments are finished, plots in the PDF format should
-be automatically generated and put in the results folder from where the docker
-was started (or in a folder of your choice if you changed the command). The
-plots are named after the figures in the paper.
+Once experiments are finished, plots in the PDF format should be automatically
+generated and put in the results folder from where the docker was started (or
+in a folder of your choice if you changed the command). The plots are named
+after the figures in the paper.
 
 You can also generate the plots manually by running make in the `plots`
 directory. Moreover, you can generate the plots from the original data that we
