@@ -42,7 +42,7 @@ To run the built image, use:
 docker run -ti vamos:fase
 ```
 
-Once in the docker container, continue with the test instructions:
+Once in the docker container, continue with the test instructions below.
 
 ## Test Instructions
 
@@ -72,3 +72,34 @@ PDF format as follows:
 
 You can also generate the plots from the original data that we measured.
 The data are in [TBD] and you can generate the plots by [TBD].
+
+## Running just some experiments
+
+To run just some experiments, you can comment out lines with experiments in
+`{short,full}-experiments.sh` scripts and rerun these scripts or you can follow
+what these script do:
+
+First, pick if you want short of full experiments and according to that, copy
+`scripts/setup-short.sh` or `scripts/setup-full.sh` into `setup.sh` (we are in
+the top-level directory now):
+
+```
+cp scripts/setup-short.sh setup.sh   # short experiments
+cp scripts/setup-full.sh setup.sh   # full experiments
+```
+
+Then, go into directories with experiments and run `make experiments` in the directory:
+
+```
+cd scalability
+make experiments
+```
+
+Available experiments are `scalability`, `primes`, `bank`, `bank-tessla`, and
+`dataraces`. The only exception from this pattern are primes-tessla experiments
+that are run from the `primes` directory using `make experiments-tessla`:
+
+```
+cd primes
+make experiments-tessla
+```

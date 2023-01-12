@@ -1,4 +1,5 @@
 <h1 id="fase-2023-artifact">FASE 2023 Artifact</h1>
+<p>NOTE: this README is available also in HTML or PDF format.</p>
 <h2 id="summary">Summary</h2>
 <p>This artifact contains a prototype of a runtime monitoring middleware
 called VAMOS as discussed in the FASE 2023 paper “VAMOS: Middleware for
@@ -21,8 +22,8 @@ get faster builds:</p>
 <pre><code>DOCKER_BUILDKIT=1 docker build . -f Dockerfile.buildkit -t vamos:fase</code></pre>
 <p>To run the built image, use:</p>
 <pre><code>docker run -ti vamos:fase</code></pre>
-<p>Once in the docker container, continue with the test
-instructions:</p>
+<p>Once in the docker container, continue with the test instructions
+below.</p>
 <h2 id="test-instructions">Test Instructions</h2>
 <p>We have prepared script to run two versions of experiments: short and
 full experiments. Short experiments run just a few minutes, but the
@@ -40,3 +41,25 @@ in the PDF format as follows:</p>
 <p>You can also generate the plots from the original data that we
 measured. The data are in [TBD] and you can generate the plots by
 [TBD].</p>
+<h2 id="running-just-some-experiments">Running just some
+experiments</h2>
+<p>To run just some experiments, you can comment out lines with
+experiments in <code>{short,full}-experiments.sh</code> scripts and
+rerun these scripts or you can follow what these script do:</p>
+<p>First, pick if you want short of full experiments and according to
+that, copy <code>scripts/setup-short.sh</code> or
+<code>scripts/setup-full.sh</code> into <code>setup.sh</code> (we are in
+the top-level directory now):</p>
+<pre><code>cp scripts/setup-short.sh setup.sh   # short experiments
+cp scripts/setup-full.sh setup.sh   # full experiments</code></pre>
+<p>Then, go into directories with experiments and run
+<code>make experiments</code> in the directory:</p>
+<pre><code>cd scalability
+make experiments</code></pre>
+<p>Available experiments are <code>scalability</code>,
+<code>primes</code>, <code>bank</code>, <code>bank-tessla</code>, and
+<code>dataraces</code>. The only exception from this pattern are
+primes-tessla experiments that are run from the <code>primes</code>
+directory using <code>make experiments-tessla</code>:</p>
+<pre><code>cd primes
+make experiments-tessla</code></pre>

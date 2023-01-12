@@ -7,7 +7,7 @@ cp scripts/setup-short.sh setup.sh
 
 scripts/run-experiments.sh
 
-rm shamon/experiments/setup.sh
+cd $(dirname $0)
 mv setup-old.sh setup.sh
 
 #cd plots
