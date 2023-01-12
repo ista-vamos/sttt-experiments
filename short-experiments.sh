@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
-cp shamon/experiments/setup.sh .
-cp shamon/experiments/setup-short.sh shamon/experiments/setup.sh
-cd shamon/experiments/scalability
-make experiments
-cd ../dataraces
-make experiments
-cd ../../..
+set -e
+cd $(dirname $0)
+
+cp setup.sh setup-old.sh
+cp scripts/setup-short.sh setup.sh
+
+scripts/run-experiments.sh
+
 rm shamon/experiments/setup.sh
-mv setup.sh shamon/experiments/setup.sh
-cd plots
-make plots
+mv setup-old.sh setup.sh
+
+#cd plots
+#make plots
 

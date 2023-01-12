@@ -4,7 +4,7 @@ RUN set -e
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get -y update  &&\
-    apt-get install -y python3 make cmake gcc g++ git lsb-release wget software-properties-common gnupg
+    apt-get install -y --no-install-recommends python3 make cmake gcc g++ git lsb-release wget software-properties-common gnupg
 
 WORKDIR /tmp
 RUN wget https://apt.llvm.org/llvm.sh
@@ -28,7 +28,7 @@ RUN make -j4
 
 # Other packages needed by the experiments
 
-RUN apt-get install -y time valgrind openjdk-17-jdk cargo
+RUN apt-get install -y --no-install-recommends time valgrind openjdk-17-jdk cargo
 
 # copy the experiments
 COPY . /opt/vamos/experiments
