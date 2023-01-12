@@ -1,0 +1,42 @@
+<h1 id="fase-2023-artifact">FASE 2023 Artifact</h1>
+<h2 id="summary">Summary</h2>
+<p>This artifact contains a prototype of a runtime monitoring middleware
+called VAMOS as discussed in the FASE 2023 paper “VAMOS: Middleware for
+Best-Effort Third-Party Monitoring” by Marek Chalupa, Stefanie Muroya
+Lei, Fabian Muehlboeck, and Thomas A. Henzinger. The artifact consist of
+the software, benchmarks discussed in the paper, and a set of scripts to
+run experiments and present the results.</p>
+<h2 id="hardware-requirements">Hardware Requirements</h2>
+<p>For all benchmarks to make sense, the artifact requires a reasonably
+modern (~past 5? years) x86-64 processor with multiple cores (ideally at
+least 6 cores).</p>
+<h2 id="using-a-bundled-docker-image">Using a bundled docker image</h2>
+<p>[TBD]</p>
+<h2 id="building-the-artifact">Building the artifact</h2>
+<p>To build and run the artifact run this command from the top-level
+directory:</p>
+<pre><code>docker build . -t vamos:fase</code></pre>
+<p>If you are on a new enough Linux system, you may use this command to
+get faster builds:</p>
+<pre><code>DOCKER_BUILDKIT=1 docker build . -f Dockerfile.buildkit -t vamos:fase</code></pre>
+<p>To run the built image, use:</p>
+<pre><code>docker run -ti vamos:fase</code></pre>
+<p>Once in the docker container, continue with the test
+instructions:</p>
+<h2 id="test-instructions">Test Instructions</h2>
+<p>We have prepared script to run two versions of experiments: short and
+full experiments. Short experiments run just a few minutes, but the
+results may slightly diverge from the results in the paper. You can run
+short experiments with:</p>
+<pre><code>./short-experiments.sh</code></pre>
+<p>Full experiments are run with</p>
+<pre><code>./full-experiments.sh</code></pre>
+<p>Full experiments can run for several hours and should reproduce
+numbers from the paper. Note that running full experiments will
+overwrite results of short experiments.</p>
+<p>Once (short or full) experiments are finished, you can generate plots
+in the PDF format as follows:</p>
+<p>[TBD]</p>
+<p>You can also generate the plots from the original data that we
+measured. The data are in [TBD] and you can generate the plots by
+[TBD].</p>

@@ -1,5 +1,7 @@
 # FASE 2023 Artifact
 
+NOTE: this README is available also in HTML or PDF format.
+
 ## Summary
 
 This artifact contains a prototype of a runtime monitoring middleware called
