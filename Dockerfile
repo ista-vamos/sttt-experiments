@@ -39,4 +39,3 @@ WORKDIR /opt/vamos/fase23-experiments
 RUN mkdir -p /usr/lib/llvm-14/lib/clang/14.0.6/lib/linux/
 RUN cp dataraces/libclang_rt.tsan-x86_64.a /usr/lib/llvm-14/lib/clang/14.0.6/lib/linux/libclang_rt.tsan-x86_64.a
 
-CMD ["cat", "README.md"]
