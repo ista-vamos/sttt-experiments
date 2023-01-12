@@ -37,7 +37,7 @@ WORKDIR /opt/vamos/fase23-experiments
 # Packages for generating plots
 RUN pip install -r plots/scripts/requirements.txt
 # Directory for results
-RUN mkdir results
+RUN mkdir /opt/results
 
 # for some reason we cannot install this normally
 RUN mkdir -p /usr/lib/llvm-14/lib/clang/14.0.6/lib/linux/
