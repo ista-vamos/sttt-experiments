@@ -31,12 +31,12 @@ RUN make -j4
 RUN apt-get install -y --no-install-recommends time valgrind openjdk-17-jdk cargo
 
 # copy the experiments
-COPY . /opt/vamos/experiments
-RUN make experiments
-WORKDIR /opt/vamos/experiments
+COPY . /opt/vamos/fase23-experiments
+RUN make fase23-experiments
+WORKDIR /opt/vamos/fase23-experiments
 
 # for some reason we cannot install this normally
 RUN mkdir -p /usr/lib/llvm-14/lib/clang/14.0.6/lib/linux/
 RUN cp dataraces/libclang_rt.tsan-x86_64.a /usr/lib/llvm-14/lib/clang/14.0.6/lib/linux/libclang_rt.tsan-x86_64.a
 
-# CMD ["/bin/bash"]
+CMD ["cat", "README.md"]
