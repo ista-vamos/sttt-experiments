@@ -4,9 +4,9 @@ This directory contains scripts that generate plots. Plots can be generated
 either from the data that we measured (see later) or from data reproduced by
 experiments in this artifact.
 
-After the generation, plots should be automatically opened. If this step for
-some reason fails, the plots still can be opened manually in a PDF viewer. They
-are generated into this directory.
+After the generation, plots are saved into `/opt/results`. This folder should
+be bound to a folder outside of the docker (see the top-level README.md) and
+thus you should see the generatied files there.
 
 
 ## Generating plots from our data
@@ -27,12 +27,9 @@ files are not prefixed with `paper_`, but with `dataraces_`.
 
 By typing `make plots` or just `make`, plots from the reproduced data are generated.
 The resulting files are named `figure_N.pdf` where `N` is the number of the figure
-from the paper. Again, the plots should be automatically opened.
+from the paper.
 
 As with generating plots from our data, the makefile contains also targets to
 generate single figures, e.g., to generate the figure for "scalability"
 experiments, type `make scalability` or `make figure-3`.
 
-NOTE: it is assumed that the experiments were already ran as instructed and
-that they are in `../shamon/experiments`. If you change the artifact layout,
-paths need to be adjusted for the scripts to work.

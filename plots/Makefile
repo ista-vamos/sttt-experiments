@@ -1,5 +1,4 @@
-SHAMONDIR=../shamon
-EXPERIMENTSDIR=$(SHAMONDIR)/experiments
+EXPERIMENTSDIR=..
 ORIGINALDATA=original-data
 
 all: plots
