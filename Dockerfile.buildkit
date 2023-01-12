@@ -33,15 +33,17 @@ RUN make -j4 -C vamos-sources/ext dynamorio BUILD_TYPE=RelWithDebInfo
 RUN make -j4
 
 # Other packages needed by the experiments
-
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get install -y time valgrind openjdk-17-jdk cargo
+    apt-get install -y time valgrind openjdk-17-jdk cargo python3-pip
 
 # copy the experiments
 COPY . /opt/vamos/fase23-experiments
 RUN make fase23-experiments
 WORKDIR /opt/vamos/fase23-experiments
+
+# Packages for generating plots
+RUN pip install -r plots/scripts/requirements.txt
 
 # for some reason we cannot install this normally
 RUN mkdir -p /usr/lib/llvm-14/lib/clang/14.0.6/lib/linux/
