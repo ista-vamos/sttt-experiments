@@ -52,10 +52,10 @@ bank-original:
 
 dataraces-original:
 	python3 scripts/dataraces-analyze.py $(ORIGINALDATA)/dataraces/results-pure.csv  $(ORIGINALDATA)/dataraces/results.csv
-	-cp dataraces_correctenss.pdf /opt/results/
-	-cp dataraces_errors.pdf /opt/results/
-	-cp dataraces_memory.pdf /opt/results/
-	-cp dataraces_times.pdf /opt/results/
+	-cp dataraces_correctenss.pdf /opt/results/paper_dataraces_correctenss.pdf
+	-cp dataraces_errors.pdf /opt/results/paper_dataraces_errors.pdf
+	-cp dataraces_memory.pdf /opt/results/paper_dataraces_memory.pdf
+	-cp dataraces_times.pdf /opt/results/paper_dataraces_times.pdf
 
 
 ######################################################################
