@@ -14,6 +14,7 @@ source ../setup.sh
 VLCC="python3 $vamos_compiler_DIR/compiler/main.py"
 GENCC="$vamos_compiler_DIR/gen/compile.sh"
 TESSLA_JAR="$vamos_compiler_DIR/compiler/tessla-rust.jar"
+FREQ=2000000
 
 # compile the tessla monitor
 java -jar $TESSLA_JAR compile-rust primes.tessla -b tessla-monitor
@@ -36,7 +37,7 @@ for SHM_BUFSIZE in 8; do
 		# generate monitor spec
 	        cpp -P $SPEC_IN -DARBITER_BUFSIZE=$ARBITER_BUFSIZE >$SPEC
 		# compile it
-		$VLCC $SPEC -b $ARBITER_BUFSIZE -o monitor-tessla.c
+		$VLCC $SPEC -b $ARBITER_BUFSIZE -freq $FREQ -o monitor-tessla.c
 		$GENCC monitor-tessla.c
 		mv monitor vamos-tessla
 
@@ -51,7 +52,7 @@ for SHM_BUFSIZE in 8; do
 		sed -i s@SRCDIR@$SRCDIR@ $SPEC
 
 		# compile it
-		$VLCC $SPEC -b $ARBITER_BUFSIZE -o monitor-tessla.c
+		$VLCC $SPEC -b $ARBITER_BUFSIZE -freq $FREQ -o monitor-tessla.c
 		$GENCC monitor-tessla.c -I$vamos_compiler_DIR ./intmap.o ./compiler_utils.o -lstdc++
 		mv monitor vamos-tessla
 
@@ -65,7 +66,7 @@ for SHM_BUFSIZE in 8; do
 		# generate monitor spec
 		sed s@ARBITER_BUFSIZE@$ARBITER_BUFSIZE@ $SPEC_IN > $SPEC
 		# compile it
-		$VLCC $SPEC -b $ARBITER_BUFSIZE -o monitor-tessla.c
+		$VLCC $SPEC -b $ARBITER_BUFSIZE -freq $FREQ -o monitor-tessla.c
 		$GENCC monitor-tessla.c
 		mv monitor vamos-tessla
 
