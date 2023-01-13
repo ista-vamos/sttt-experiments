@@ -34,7 +34,7 @@ DRRUN="$DRRUN -root $DRIOROOT/\
 
 MONITOR=$(dirname $0)/monitor-vamos
 if [ $(basename "$0") == "regexbank-dump.sh" ]; then
-	MONITOR=$shamon_LIBRARIES_DIR_core/../../monitors/monitor-generic
+	MONITOR=$vamos_buffers_LIBRARIES_DIR_core/../../monitors/monitor-generic
 fi
 
 rm -f /tmp/fifo{A,B}

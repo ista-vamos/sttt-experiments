@@ -4,7 +4,7 @@ CPPFLAGS=
 CFLAGS=-g #-O3
 VLCC=python3 ${vamos_compiler_DIR}/compiler/main.py
 GENCC=${vamos_compiler_DIR}/gen/compile.sh
-SHAMON_LIB=${shamon_libraries_DIR}/libshamon-lib.so  # for dependency
+SHAMON_LIB=${vamos_buffers_libraries_DIR}/libvamos-buffers-lib.so  # for dependency
 
 BUFSIZE=1024
 TESSLA_JAR=$(vamos_compiler_DIR)/compiler/tessla-rust.jar

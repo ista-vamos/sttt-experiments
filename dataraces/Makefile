@@ -18,7 +18,7 @@ monitor.c: monitor.txt clean
 	-clang-format -i monitor.c
 
 compiler_utils.o: $(vamos_compiler_DIR)/compiler/cfiles/compiler_utils.c
-	$(CC) -g -c $<  -I$(shamon_INCLUDE_DIRS) -o $@
+	$(CC) -g -c $<  -I$(vamos_buffers_INCLUDE_DIRS) -o $@
 
 monitor: monitor.c monitor.o compiler_utils.o
 	$(MON_COMPILER) monitor.c monitor.o -I$(vamos_compiler_DIR) -lstdc++ compiler_utils.o

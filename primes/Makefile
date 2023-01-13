@@ -8,7 +8,7 @@ all: prepare
 COMPILER_CFILES=${vamos_compiler_DIR}/compiler/cfiles/
 
 compiler_utils.o: ${COMPILER_CFILES}/compiler_utils.c
-	$(CC) -I${shamon_INCLUDE_DIRS} -c $< -o compiler_utils.o
+	$(CC) -I${vamos_buffers_INCLUDE_DIRS} -c $< -o compiler_utils.o
 
 intmap.o: ${COMPILER_CFILES}/intmap.cpp
 	$(CXX) -c $< -o intmap.o

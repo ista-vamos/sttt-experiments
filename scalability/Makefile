@@ -10,26 +10,26 @@ LDFLAGS=-lpthread
 MON_COMPILER_PY=${vamos_compiler_DIR}/compiler/main.py
 MON_COMPILER=${vamos_compiler_DIR}/gen/compile.sh
 
-SOURCE_LIBS=$(shamon_LIBRARIES_DIRS_shmbuf)/libshamon-shmbuf.a\
-            $(shamon_LIBRARIES_DIRS_core)/libshamon-source.a\
-            $(shamon_LIBRARIES_DIRS_core)/libshamon-signature.a\
-            $(shamon_LIBRARIES_DIRS_core)/libshamon-ringbuf.a\
-            $(shamon_LIBRARIES_DIRS_core)/libshamon-event.a\
-            $(shamon_LIBRARIES_DIRS_core)/libshamon-list.a\
-            $(shamon_LIBRARIES_DIRS_core)/libshamon-utils.a
+SOURCE_LIBS=$(vamos_buffers_LIBRARIES_DIRS_shmbuf)/libvamos-buffers-shmbuf.a\
+            $(vamos_buffers_LIBRARIES_DIRS_core)/libvamos-buffers-source.a\
+            $(vamos_buffers_LIBRARIES_DIRS_core)/libvamos-buffers-signature.a\
+            $(vamos_buffers_LIBRARIES_DIRS_core)/libvamos-buffers-ringbuf.a\
+            $(vamos_buffers_LIBRARIES_DIRS_core)/libvamos-buffers-event.a\
+            $(vamos_buffers_LIBRARIES_DIRS_core)/libvamos-buffers-list.a\
+            $(vamos_buffers_LIBRARIES_DIRS_core)/libvamos-buffers-utils.a
 
-MONITOR_LIBS= ${shamon_LIBRARIES_DIRS_core}/libshamon-signature.a\
-              ${shamon_LIBRARIES_DIRS_core}/libshamon.a\
-              ${shamon_LIBRARIES_DIRS_core}/libshamon-arbiter.a\
-              ${shamon_LIBRARIES_DIRS_core}/libshamon-parallel-queue.a\
-              ${shamon_LIBRARIES_DIRS_core}/libshamon-ringbuf.a\
-              ${shamon_LIBRARIES_DIRS_core}/libshamon-event.a\
-              ${shamon_LIBRARIES_DIRS_streams}/libshamon-streams.a\
-	      ${shamon_LIBRARIES_DIRS_shmbuf}/libshamon-shmbuf.a\
-              ${shamon_LIBRARIES_DIRS_core}/libshamon-utils.a
+MONITOR_LIBS= ${vamos_buffers_LIBRARIES_DIRS_core}/libvamos-buffers-signature.a\
+              ${vamos_buffers_LIBRARIES_DIRS_core}/libvamos-buffers.a\
+              ${vamos_buffers_LIBRARIES_DIRS_core}/libvamos-buffers-arbiter.a\
+              ${vamos_buffers_LIBRARIES_DIRS_core}/libvamos-buffers-parallel-queue.a\
+              ${vamos_buffers_LIBRARIES_DIRS_core}/libvamos-buffers-ringbuf.a\
+              ${vamos_buffers_LIBRARIES_DIRS_core}/libvamos-buffers-event.a\
+              ${vamos_buffers_LIBRARIES_DIRS_streams}/libvamos-buffers-streams.a\
+	      ${vamos_buffers_LIBRARIES_DIRS_shmbuf}/libvamos-buffers-shmbuf.a\
+              ${vamos_buffers_LIBRARIES_DIRS_core}/libvamos-buffers-utils.a
 
 source.o: source.c
-	$(CC) -c $(CFLAGS) source.c -I ${shamon_INCLUDE_DIRS}
+	$(CC) -c $(CFLAGS) source.c -I ${vamos_buffers_INCLUDE_DIRS}
 
 source: source.o
 	$(CC) $(CFLAGS) source.o -o source $(SOURCE_LIBS)
