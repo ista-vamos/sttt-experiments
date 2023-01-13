@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install packages
 RUN apt-get -y update  &&\
-    apt-get install -y\
+    apt-get install -y --no-install-recommends\
         cargo\
         cmake\
         python3\
