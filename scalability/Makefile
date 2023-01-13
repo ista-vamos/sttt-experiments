@@ -35,7 +35,7 @@ source: source.o
 	$(CC) $(CFLAGS) source.o -o source $(SOURCE_LIBS)
 
 monitor.c: monitor.txt
-	python3 $(MON_COMPILER_PY) monitor.txt -o monitor.c
+	python3 $(MON_COMPILER_PY) -freq 10000000 monitor.txt -o monitor.c
 	-clang-format -i monitor.c
 
 monitor: monitor.c
