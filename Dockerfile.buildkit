@@ -23,19 +23,20 @@ RUN ln -s /usr/bin/llvm-link-14 /usr/bin/llvm-link
 RUN ln -s /usr/bin/llvm-config-14 /usr/bin/llvm-config
 RUN ln -s /usr/bin/opt-14 /usr/bin/opt
 
-WORKDIR /opt
-
-RUN git clone https://github.com/ista-vamos/vamos
-WORKDIR /opt/vamos
-
-RUN make sources-init
-RUN make -j4 -C vamos-sources/ext dynamorio BUILD_TYPE=RelWithDebInfo
-RUN make -j4
-
 # Other packages needed by the experiments
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get install -y time valgrind openjdk-17-jdk cargo python3-pip
+
+# clone VAMOS
+WORKDIR /opt
+RUN git clone https://github.com/ista-vamos/vamos
+WORKDIR /opt/vamos
+
+# compile DynamoRIO and then VAMOS
+RUN make sources-init
+RUN make -j4 -C vamos-sources/ext dynamorio BUILD_TYPE=RelWithDebInfo
+RUN make -j4
 
 # copy the experiments
 COPY . /opt/vamos/fase23-experiments
@@ -47,7 +48,7 @@ RUN pip install -r plots/scripts/requirements.txt
 # Directory for results
 RUN mkdir /opt/results
 
-# for some reason we cannot install this normally
+# for some reason we cannot install TSan normally
 RUN mkdir -p /usr/lib/llvm-14/lib/clang/14.0.6/lib/linux/
 RUN cp dataraces/libclang_rt.tsan-x86_64.a /usr/lib/llvm-14/lib/clang/14.0.6/lib/linux/libclang_rt.tsan-x86_64.a
 
