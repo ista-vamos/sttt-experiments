@@ -33,7 +33,7 @@ If you are on a new enough Linux system, you may use this command to get
 faster builds:
 
 ```
-DOCKER_BUILDKIT=1 docker build . -f Dockerfile.buildkit -t vamos:fase
+DOCKER_BUILDKIT=1 docker build . -t vamos:fase
 ```
 
 The building process can take more than 10 minutes, based on the used machine
