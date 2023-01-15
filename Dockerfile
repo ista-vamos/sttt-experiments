@@ -72,7 +72,7 @@ RUN apt-get install -y --no-install-recommends\
 
 
 FROM prepare-artifact as artifact
-COPY --from=experiments /opt/vamos /opt/vamos
+COPY --from=vamos /opt/vamos /opt/vamos
 WORKDIR /opt/vamos/fase23-experiments
 
 # "install" TSan for dataraces experiments
