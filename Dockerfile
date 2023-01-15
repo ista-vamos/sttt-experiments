@@ -56,12 +56,13 @@ RUN make fase23-experiments
 
 FROM base as prepare-artifact
 RUN pip install matplotlib==3.6.0 pandas==1.5.0 seaborn==0.12.0 && mkdir /opt/results
-# again install LLVM
+# again install LLVM -- if we try to copy it, it gets broken
 RUN echo 'deb [trusted=yes] http://apt.llvm.org/focal/  llvm-toolchain-focal-14 main' >> /etc/apt/sources.list &&\
     apt-get update
 RUN apt-get install -y --no-install-recommends\
         cargo\
 	clang-14 \
+	llvm-14\
         openjdk-17-jdk\
         valgrind && \
         ln -s /usr/bin/clang-14 /usr/bin/clang &&\
@@ -73,6 +74,7 @@ RUN apt-get install -y --no-install-recommends\
 
 FROM prepare-artifact as artifact
 COPY --from=vamos /opt/vamos /opt/vamos
+COPY --from=dynamorio /opt/dynamorio/build /opt/dynamorio/build
 WORKDIR /opt/vamos/fase23-experiments
 
 # "install" TSan for dataraces experiments
