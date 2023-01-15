@@ -2,7 +2,7 @@ from measure import *
 from csv import writer as csvwriter
 from sys import argv
 from tempfile import mktemp
-from os.path import dirname, basename, abspath, join as pathjoin
+from os.path import dirname, basename, abspath, join as pathjoin, isdir
 
 import sys
 sys.path.append('..')
@@ -11,6 +11,10 @@ import config
 SELFPATH=abspath(dirname(__file__))
 # assume that dynamorio is in the same folder as shamon
 DRIOPATH=abspath(pathjoin(config.vamos_sources_DIR, "ext/dynamorio/"))
+if not isdir(DRIOPATH):
+    DRIOPATH="/opt/dynamorio/"
+if not isdir(DRIOPATH):
+    raise RuntimeError("Couldn't find DynamoRIO")
 
 DRRUN=f"{DRIOPATH}/build/bin64/drrun"
 DRIO=[DRRUN, "-root",  f"{DRIOPATH}/build/",

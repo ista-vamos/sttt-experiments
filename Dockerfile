@@ -14,69 +14,69 @@ RUN apt-get install -y --no-install-recommends\
         make\
         time
 
-FROM base AS llvm
+FROM base AS base-git
 RUN apt-get install -y --no-install-recommends\
-        gnupg\
-        lsb-release\
-        software-properties-common\
-        wget
+        cmake\
+        git
+
+FROM base-git AS dynamorio
+WORKDIR /opt
+RUN git clone --depth=1 https://github.com/DynamoRIO/dynamorio &&\
+    mkdir -p dynamorio/build &&\
+    cd dynamorio/build &&\
+    cmake .. &&\
+    make -j4
+
+FROM base-git AS llvm
 
 # Install LLVM 14
-RUN wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh &&\
-    sed -i 's@PKG="clang-$LLVM_VERSION.*@PKG="clang-$LLVM_VERSION"@' ./llvm.sh &&\
-    ./llvm.sh 14 &&\
+RUN echo 'deb [trusted=yes] http://apt.llvm.org/focal/  llvm-toolchain-focal-14 main' >> /etc/apt/sources.list &&\
+    apt-get update
+#RUN wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh &&\
+#    sed -i 's@PKG="clang-$LLVM_VERSION.*@PKG="clang-$LLVM_VERSION"@' ./llvm.sh &&\
+#    ./llvm.sh 14 &&\
+RUN apt-get install -y --no-install-recommends clang-14 llvm-14-dev &&\
     ln -s /usr/bin/clang-14 /usr/bin/clang &&\
     ln -s /usr/bin/clang++-14 /usr/bin/clang++ &&\
     ln -s /usr/bin/llvm-link-14 /usr/bin/llvm-link &&\
     ln -s /usr/bin/llvm-config-14 /usr/bin/llvm-config &&\
     ln -s /usr/bin/opt-14 /usr/bin/opt
 
-FROM llvm as vamos
-RUN apt-get install -y --no-install-recommends\
-        cmake\
-        git
-
 # clone VAMOS
+FROM llvm AS vamos
 WORKDIR /opt
-RUN git clone https://github.com/ista-vamos/vamos -b main
+RUN git clone --depth=1 https://github.com/ista-vamos/vamos -b main
+#compile VAMOS
 WORKDIR /opt/vamos
-
-# compile DynamoRIO and then VAMOS
-RUN make sources-init && make -j4 -C vamos-sources/ext dynamorio BUILD_TYPE=RelWithDebInfo
-RUN make -j4
-
-FROM vamos AS experiments
-# copy the experiments
+COPY --from=dynamorio /opt/dynamorio/build /opt/dynamorio/build
+RUN make -j4 DynamoRIO_DIR=/opt/dynamorio/build/cmake
+# copy and setup the experiments
 COPY . /opt/vamos/fase23-experiments
-
-# compile the experiments
 RUN make fase23-experiments
-WORKDIR /opt/vamos/fase23-experiments
 
-FROM llvm as prepare-artifact
+FROM base as prepare-artifact
 RUN pip install matplotlib==3.6.0 pandas==1.5.0 seaborn==0.12.0 && mkdir /opt/results
+# again install LLVM
+RUN echo 'deb [trusted=yes] http://apt.llvm.org/focal/  llvm-toolchain-focal-14 main' >> /etc/apt/sources.list &&\
+    apt-get update
 RUN apt-get install -y --no-install-recommends\
-	cargo\
+        cargo\
+	clang-14 \
         openjdk-17-jdk\
-        valgrind
+        valgrind && \
+        ln -s /usr/bin/clang-14 /usr/bin/clang &&\
+        ln -s /usr/bin/clang++-14 /usr/bin/clang++ &&\
+        ln -s /usr/bin/llvm-link-14 /usr/bin/llvm-link &&\
+        ln -s /usr/bin/llvm-config-14 /usr/bin/llvm-config &&\
+        ln -s /usr/bin/opt-14 /usr/bin/opt
+
 
 FROM prepare-artifact as artifact
 COPY --from=experiments /opt/vamos /opt/vamos
-#COPY --from=llvm /usr/bin/clang\
-#                 /usr/bin/clang++\
-#                 /usr/bin/llvm-link\
-#                 /usr/bin/opt\
-#                 /usr/bin/
-#COPY --from=llvm /lib/x86_64-linux-gnu/libclang-cpp.so.14\
-#                 /lib/x86_64-linux-gnu/libLLVM-14.so.1\
-#                 /lib/x86_64-linux-gnu/
-#COPY --from=llvm /usr/lib/gcc/ /usr/lib/gcc
-#COPY --from=llvm /usr/lib/llvm-14/ /usr/lib/llvm-14/
-
+WORKDIR /opt/vamos/fase23-experiments
 
 # "install" TSan for dataraces experiments
 # for some reason we cannot install TSan normally
 # Install packages for generating plots and prepare the dir for results
 COPY ./dataraces/libclang_rt.tsan-x86_64.a /usr/lib/llvm-14/lib/clang/14.0.6/lib/linux/libclang_rt.tsan-x86_64.a
 
-WORKDIR /opt/vamos/fase23-experiments
