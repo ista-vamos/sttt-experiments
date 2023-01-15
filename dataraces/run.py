@@ -6,7 +6,7 @@ from os.path import dirname, abspath, basename, isfile
 
 from randomharness import gen_harness
 
-sys.path.append('..')
+sys.path.append(abspath(f"{dirname(__file__)}/.."))
 import config
 
 opt = "opt"

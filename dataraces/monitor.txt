@@ -10,6 +10,8 @@ stream type ThreadEvent(threadid: int, tstate : int16_t, nonecount : uint16_t, n
     free(timestamp: uint64_t, addr : intptr_t);
     fork(timestamp: uint64_t, newthreadid: uint64_t) creates ThreadEvent;
     join(timestamp: uint64_t, threadid: uint64_t);
+    write_n(timestamp: uint64_t, addr : intptr_t, size: size_t);
+    read_n(timestamp: uint64_t, addr : intptr_t, size: size_t);
 }
 stream processor TEProcessor(threadid : int) : ThreadEvent(threadid, 0, 0, 0, 0, 0) -> ThreadEvent(threadid, 0, 0, 0, 0, 0) extends FORWARD
 {
@@ -111,6 +113,47 @@ arbiter : GlobalEvent
                 $drop 1 from T;
             }
         $$
+        on T : | read_n(ts,addr, size)
+        $$
+            if(ts==nextts)
+            {
+                $yield read_sized(T.threadid, ts, addr, size);
+                $drop 1 from T;
+                nextts++;
+                leastts=ULLONG_MAX;
+            }
+            else if(ts>nextts)
+            {
+                $T.nextts;=ts;
+                leastts=min(leastts, ts);
+            }
+            else
+            {
+                //printf("%lu/%lu\n",ts,nextts);
+                $drop 1 from T;
+            }
+        $$
+        on T : | write_n(ts,addr,size)
+        $$
+            //printf("write! %lu/%lu\n",ts,nextts);
+            if(ts==nextts)
+            {
+                $yield write_sized(T.threadid, ts, addr, size);
+                $drop 1 from T;
+                nextts++;
+                leastts=ULLONG_MAX;
+            }
+            else if(ts>nextts)
+            {
+                $T.nextts;=ts;
+                leastts=min(leastts, ts);
+            }
+            else
+            {
+                $drop 1 from T;
+            }
+        $$
+
         on T : | atomicread(ts,addr,mode)
         $$
             if(ts==nextts)
