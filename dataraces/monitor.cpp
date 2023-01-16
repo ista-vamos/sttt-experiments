@@ -182,6 +182,28 @@ void print_info(Info &info, bool printCells=false)
 	}
 }
 
+void cell_rc_inc(Cell* cell)
+{
+	cell->refcount++;
+}
+void cell_rc_dec(Cell* cell)
+{
+	cell->refcount--;
+	if(cell->refcount<=0)
+	{
+		if(cellcount>10000&&head->refcount==0)
+		{
+			while(head->refcount==0&&head->next!=0)
+			{
+				Cell* last=head;
+				head=head->next;
+				cellcount--;
+				free(last);
+			}
+		}
+	}
+}
+
 inline void enqueue_sync_event(int thrd, ActionType tp, Action &a)
 {
 	tail->threadid=thrd;
@@ -202,8 +224,10 @@ inline bool thread_holds_lock(int thrd, intptr_t lock)
 	return false;
 }
 
-void apply_lockset_rules(Lockset &ls, Cell *pos1, Cell *pos2, int owner2, ActionType action, intptr_t addr)
+void apply_lockset_rules(Lockset &ls, Cell **pos1r, Cell *pos2, int owner2, ActionType action, intptr_t addr, int otherthread)
 {
+	Cell* pos1=*pos1r;
+	Cell* origpos1=pos1;
 	while(pos1!=pos2)
 	{
 		switch(pos1->type)
@@ -305,14 +329,17 @@ void apply_lockset_rules(Lockset &ls, Cell *pos1, Cell *pos2, int owner2, Action
 			break;
 		}
 		pos1=pos1->next;
+		*pos1r=pos1;
 	}
+	cell_rc_inc(pos1);
+	cell_rc_dec(origpos1);
 	switch(action)
 	{		
 		case ActionType::ATRead:
 		{
-			if((!(ls.addrs.empty()&&ls.threads.empty()))&&ls.threads.find(owner2)==ls.threads.end()&&ls.skipthreads.find(pos1->threadid)==ls.skipthreads.end()&&ls.skippedthreads.find(pos1->threadid)==ls.skippedthreads.end())
+			if((!(ls.addrs.empty()&&ls.threads.empty()))&&ls.threads.find(owner2)==ls.threads.end()&&ls.skipthreads.find(owner2)==ls.skipthreads.end()&&ls.skippedthreads.find(owner2)==ls.skippedthreads.end())
 			{
-				fprintf(stderr, "Found data race: Thread %i read from %p without synchronization\n", owner2, (void*)addr);
+				fprintf(stderr, "Found data race: Thread %i read from %p without synchronizing with thread %i\n", owner2, (void*)addr, otherthread);
 				racecount++;
 			}
 			// else
@@ -320,19 +347,19 @@ void apply_lockset_rules(Lockset &ls, Cell *pos1, Cell *pos2, int owner2, Action
 			// 	printf("read is fine\n");
 			// }
 			ls.addrs.clear();
-			if(ls.threads.size()!=1||(*ls.threads.begin())!=pos1->threadid)
+			if(ls.threads.size()!=1||(*ls.threads.begin())!=owner2)
 			{
 				ls.threads.clear();
-				ls.threads.insert(pos1->threadid);
+				ls.threads.insert(owner2);
 			}
 			ls.skippedthreads.clear();
 		}
 		break;
 		case ActionType::ATWrite:
 		{
-			if((!(ls.addrs.empty()&&ls.threads.empty()))&&ls.threads.find(owner2)==ls.threads.end()&&ls.skipthreads.find(pos1->threadid)==ls.skipthreads.end()&&ls.skippedthreads.find(pos1->threadid)==ls.skippedthreads.end())
+			if((!(ls.addrs.empty()&&ls.threads.empty()))&&ls.threads.find(owner2)==ls.threads.end()&&ls.skipthreads.find(owner2)==ls.skipthreads.end()&&ls.skippedthreads.find(owner2)==ls.skippedthreads.end())
 			{
-				fprintf(stderr, "Found data race: Thread %i wrote to %p without synchronization\n", owner2, (void*)addr);
+				fprintf(stderr, "Found data race: Thread %i wrote to %p without synchronizing with thread %i\n", owner2, (void*)addr, otherthread);
 				racecount++;
 			}
 			// else
@@ -340,10 +367,10 @@ void apply_lockset_rules(Lockset &ls, Cell *pos1, Cell *pos2, int owner2, Action
 			// 	printf("write is fine\n");
 			// }
 			ls.addrs.clear();
-			if(ls.threads.size()!=1||(*ls.threads.begin())!=pos1->threadid)
+			if(ls.threads.size()!=1||(*ls.threads.begin())!=owner2)
 			{
 				ls.threads.clear();
-				ls.threads.insert(pos1->threadid);
+				ls.threads.insert(owner2);
 			}
 			ls.skippedthreads.clear();
 		}
@@ -361,7 +388,7 @@ void check_happens_before(Info &info1, Info &info2, ActionType action, intptr_t 
 	// }
 	if((info1.owner!=info2.owner)&&(!thread_holds_lock(info2.owner,info1.alock)))
 	{
-		apply_lockset_rules(info1.lockset, info1.pos, info2.pos, info2.owner, action, addr);
+		apply_lockset_rules(info1.lockset, &info1.pos, info2.pos, info2.owner, action, addr, info1.owner);
 		info2.alock=0;
 		auto posn=ThreadLocks.find(info1.owner);
 		if(posn!=ThreadLocks.end())
@@ -375,27 +402,6 @@ void check_happens_before(Info &info1, Info &info2, ActionType action, intptr_t 
 	}
 }
 
-void cell_rc_inc(Cell* cell)
-{
-	cell->refcount++;
-}
-void cell_rc_dec(Cell* cell)
-{
-	cell->refcount--;
-	if(cell->refcount<=0)
-	{
-		if(cellcount>10000&&head->refcount==0)
-		{
-			while(head->refcount==0&&head->next!=0)
-			{
-				Cell* last=head;
-				head=head->next;
-				cellcount--;
-				free(last);
-			}
-		}
-	}
-}
 
 extern "C" void monitor_handle_read(int tid, uint64_t timestamp, intptr_t addr)
 {
@@ -486,6 +492,8 @@ extern "C" void monitor_handle_lock(int tid, uint64_t timestamp, intptr_t addr)
 {
 	Action a;
 	a.lock.addr=addr;
+	LockThreads[addr]=tid;
+	ThreadLocks[tid].insert(addr);
 	enqueue_sync_event(tid, ActionType::ATLock, a);
 }
 
@@ -493,6 +501,8 @@ extern "C" void monitor_handle_unlock(int tid, uint64_t timestamp, intptr_t addr
 {
 	Action a;
 	a.unlock.addr=addr;
+	LockThreads.erase(addr);
+	ThreadLocks[tid].erase(addr);
 	enqueue_sync_event(tid, ActionType::ATUnlock, a);
 }
 
@@ -538,4 +548,25 @@ extern "C" void monitor_handle_done(int tid, uint64_t timestamp)
 {
 	Action a;
 	enqueue_sync_event(tid, ActionType::ATDone, a);
+	ThreadLocks.erase(tid);
+	bool eraseNext=false;
+	intptr_t eraseKey=0;
+	for(auto &entry : LockThreads)
+	{
+		if(eraseNext)
+		{
+			LockThreads.erase(eraseKey);
+			eraseNext=false;
+		}
+		if(entry.second==tid)
+		{
+			eraseKey=entry.first;
+			eraseNext=true;
+			break;
+		}
+	}
+	if(eraseNext)
+	{
+		LockThreads.erase(eraseKey);
+	}
 }
