@@ -24,7 +24,7 @@ stream processor TEProcessor(threadid : int) : ThreadEvent(threadid, 0, 0, 0, 0,
     }
 }
 
-buffer group Threads : ThreadEvent order by nextts
+buffer group Threads : ThreadEvent
 event source Program : ThreadEvent process using TEProcessor(0) to autodrop(@BUFSIZE,256) include in Threads
 
 stream type GlobalEvent
@@ -70,7 +70,7 @@ $$
 
 arbiter : GlobalEvent
 {
-    choose first 5 T from Threads where $$ $T.nextts; <= nextts && ($T.nonecount; < nonebarrier || $T.nonets; < nextts) $$
+    choose T from Threads where $$ $T.nextts; <= nextts && ($T.nextts; == nextts || $T.nonecount; < nonebarrier || $T.nonets; < nextts) $$
     {
         on T : | read(ts,addr)
         $$
@@ -349,39 +349,25 @@ arbiter : GlobalEvent
         $$
         on T : nothing
         $$
-            if($T.nonets;<nextts)
+            if(leastts!=ULONG_MAX && skipcount >= leastts - nextts)
             {
-                $T.nonecount;=0;
-                $T.nonets;=nextts;
+                if($T.nonets;<nextts)
+                {
+                    $T.nonecount;=0;
+                    $T.nonets;=nextts;
+                }
+                $T.nonecount;+=1;
+                seenNone=1;
             }
-            $T.nonecount;+=1;
-            seenNone=1;
         $$
     }
 
     always
     $$
-        if((!seenNone) || (nonecycles>1000000 && skipcount >= leastts - nextts))
+        if(leastts!=ULONG_MAX && (seenNone==0 || nonecycles>1000000) && skipcount >= leastts - nextts)
         {
-            if(leastts!=ULLONG_MAX)
-            {
-                if(seenNone)
-                {
-                    skipcount-=(leastts-nextts);
-                    printf("%d: new skipcount: %lu\n", __LINE__, skipcount);
-                }
-                nextts=leastts;
-            }
-            else
-            {
-                if(seenNone)
-                {
-                    skipcount-=1;
-                    printf("%d: new skipcount: %lu\n", __LINE__, skipcount);
-                }
-                nextts++;
-                //printf("inc: %lu\n",nextts);
-            }
+            skipcount-=(leastts-nextts);
+            nextts=leastts;
             nonebarrier=1;
             nonecycles=0;
         }
