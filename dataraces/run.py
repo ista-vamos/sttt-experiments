@@ -78,7 +78,6 @@ def compile_file(infile):
             infile,
             "-noinst",
             harness,
-            "-noinst",
             f"{DIR}/svcomp_atomic.c",
             "-o",
             "a.vamos.out",
