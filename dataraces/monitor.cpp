@@ -464,13 +464,9 @@ inline void monitor_handle_write_(int tid, uint64_t timestamp, intptr_t addr)
 	auto rinfo = Reads.find(addr);
 	if(rinfo!=Reads.end())
 	{
-		for(auto tlp=ThreadLocks.begin();tlp!=ThreadLocks.end();tlp++)
+		for(auto &trinfo : rinfo->second)
 		{
-			auto trinfo = rinfo->second.find(tlp->first);
-			if(trinfo!=rinfo->second.end())
-			{
-				check_happens_before(trinfo->second, info, ActionType::ATWrite, addr);
-			}
+			check_happens_before(trinfo.second, info, ActionType::ATWrite, addr);
 		}
 	}
 	// else
