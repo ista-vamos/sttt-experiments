@@ -106,7 +106,7 @@ def run_once():
                     words[5][0 : words[5].find(b"maxresident")]
                 )
     except TimeoutExpired:
-        result["tsan"]["races"] = None
+        result["tsan"]["races"] = "TO"
         proc.kill()
 
     # --- run HELGRIND
@@ -130,7 +130,7 @@ def run_once():
                     words[5][0 : words[5].find(b"maxresident")]
                 )
     except TimeoutExpired:
-        result["helgrind"]["races"] = None
+        result["helgrind"]["races"] = "TO"
         proc.kill()
 
     # --- run VAMOS
@@ -161,7 +161,7 @@ def run_once():
             if b"info: number of emitted events" in line:
                 result["vamos"]["eventsnum"] = int(line.split()[5])
     except TimeoutExpired:
-        result["vamos"]["races"] = None
+        result["vamos"]["races"] = "TO"
     finally:
         proc.kill()
         mon.kill()
@@ -224,8 +224,6 @@ def run_rep(infile, csvfile):
             print(basename(infile),",", ",".join((str(r) for r in result)), file=csvstream)
 
         sys.stdout.flush()
-       #if None in result:
-       #    continue
         assert len(result) == 18
         #results.append(result)
         n += 1
