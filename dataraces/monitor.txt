@@ -47,6 +47,8 @@ stream type GlobalEvent
 }
 globals
 $$
+    //#define DEBUGPRINT
+
     #include <limits.h>
     #include "monitor.h"
     uint64_t nextts=1;

@@ -1,9 +1,20 @@
 include ../Makefile.config
 
-#CFLAGS=-g3 -O3 -flto  -fno-fat-lto-objects -fPIC -std=c11
-CFLAGS=-g -fPIC -std=c11
-CPPFLAGS=-D_POSIX_C_SOURCE=200809L -DNDEBUG
+CXX=clang++
+CXXFLAGS=
+CFLAGS=-fPIC -std=c11
+CPPFLAGS=-D_POSIX_C_SOURCE=200809L
 LDFLAGS=-lpthread
+
+ifdef DEBUG
+CFLAGS += -g -O0
+CXXFLAGS += -g -O0
+CPPFLAGS += -DDBGBUF
+else
+CPPFLAGS += -DNDEBUG
+CFLAGS +=-g3 -O3 -flto -fno-fat-lto-objects
+CXXFLAGS +=-g3 -O3 -flto -fno-fat-lto-objects
+endif
 
 MON_COMPILER_PY=$(vamos_compiler_DIR)/compiler/main.py
 MON_COMPILER=$(vamos_compiler_DIR)/gen/compile.sh
@@ -11,7 +22,7 @@ MON_COMPILER=$(vamos_compiler_DIR)/gen/compile.sh
 all: monitor
 
 monitor.o: monitor.cpp
-	$(CXX) monitor.cpp -g -std=c++17 -c -O3
+	$(CXX) -I$(vamos_buffers_INCLUDE_DIRS) $(CXXFLAGS) $(CPPFLAGS) monitor.cpp -std=c++17 -c
 
 monitor.c: monitor.txt clean
 	python3 $(MON_COMPILER_PY) monitor.txt -b 512 -o monitor.c
@@ -30,7 +41,7 @@ experiments: monitor
 	./experiments.sh
 
 clean:
-	-rm monitor.c monitor.o *.bc *.o vgcore*
+	-rm monitor.c *.bc *.o vgcore*
 
 .PHONY: all clean
 

@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cinttypes>
+#include <cstring>
 #include <unordered_map>
 #include <unordered_set>
 #include <map>
@@ -8,6 +9,58 @@
 
 #define ADDRCELLSIZE 8
 #define THREADCELLSIZE 4
+
+#ifdef DBGBUF
+extern "C" {
+#include "vamos-buffers/shmbuf/buffer.h"
+}
+
+std::map<void *, const char *> _vars;
+static vms_shm_dbg_buffer *dbgbuf;
+void update_dbgbuf() {
+    static size_t version = 0;
+    if (!dbgbuf) {
+        dbgbuf = vms_shm_dbg_buffer_get("/vrd-vars");
+    }
+
+    if (dbgbuf) {
+        size_t buf_version = vms_shm_dbg_buffer_version(dbgbuf);
+        if (buf_version > version) {
+            version = buf_version;
+            const size_t recsize = vms_shm_dbg_buffer_rec_size(dbgbuf);
+            const size_t size = vms_shm_dbg_buffer_size(dbgbuf);
+            unsigned char *data =  vms_shm_dbg_buffer_data(dbgbuf);
+            for (size_t i = 0; i < size; ++i) {
+                unsigned char *rec = data + recsize*i;
+                void *addr;
+                memcpy(&addr, rec, sizeof(addr));
+                const char *name = (char*)(rec + sizeof(void*));
+                _vars[*(void**)rec] = (char*)(rec + sizeof(void*));
+            }
+        }
+    }
+}
+
+// returns base address and name
+std::pair<void *, const char *> get_var(void *addr) {
+    update_dbgbuf();
+
+    auto it = _vars.lower_bound(addr);
+    if (it == _vars.end())
+        return {nullptr, nullptr};
+    if (it->first != addr) {
+        // it is the greater element
+        if (it == _vars.begin()) {
+            return {nullptr, nullptr};
+        }
+        // return the lower element
+        --it;
+    }
+    return *it;
+}
+#else
+std::pair<void *, const char *> get_var(void *addr) { return {nullptr, nullptr}; }
+#endif
 
 using namespace std;
 
@@ -339,11 +392,24 @@ void apply_lockset_rules(Lockset &ls, Cell **pos1r, Cell *pos2, int owner2, Acti
 		{
 			if((!(ls.addrs.empty()&&ls.threads.empty()))&&ls.threads.find(owner2)==ls.threads.end()&&ls.skipthreads.find(owner2)==ls.skipthreads.end()&&ls.skippedthreads.find(owner2)==ls.skippedthreads.end())
 			{
-				#if DEBUGPRINT
+#if DEBUGPRINT
 				fprintf(stderr, "//Found data race: Thread %i read from %p without synchronizing with thread %i\n", owner2, (void*)addr, otherthread);
-				#else
-				fprintf(stderr, "Found data race: Thread %i read from %p without synchronizing with thread %i\n", owner2, (void*)addr, otherthread);
-				#endif
+#else
+#ifdef DBGBUF
+                auto [base, var] = get_var((void*)addr);
+                if (var) {
+                    if (base != (void*)addr) {
+				        fprintf(stderr, "Found data race: Thread %i read from '%s+%lu'[%p] without synchronizing with thread %i\n",
+                                owner2, var, addr - (intptr_t)base, (void*)addr, otherthread);
+
+                    } else {
+				        fprintf(stderr, "Found data race: Thread %i read from '%s'[%p] without synchronizing with thread %i\n",
+                                owner2, var, (void*)addr, otherthread);
+                    }
+                } else
+#endif // DBGBUF
+				    fprintf(stderr, "Found data race: Thread %i read from [%p] without synchronizing with thread %i\n", owner2, (void*)addr, otherthread);
+#endif
 				racecount++;
 			}
 			// else
@@ -363,11 +429,25 @@ void apply_lockset_rules(Lockset &ls, Cell **pos1r, Cell *pos2, int owner2, Acti
 		{
 			if((!(ls.addrs.empty()&&ls.threads.empty()))&&ls.threads.find(owner2)==ls.threads.end()&&ls.skipthreads.find(owner2)==ls.skipthreads.end()&&ls.skippedthreads.find(owner2)==ls.skippedthreads.end())
 			{
-				#if DEBUGPRINT
+#if DEBUGPRINT
 				fprintf(stderr, "//Found data race: Thread %i wrote to %p without synchronizing with thread %i\n", owner2, (void*)addr, otherthread);
-				#else
-				fprintf(stderr, "Found data race: Thread %i wrote to %p without synchronizing with thread %i\n", owner2, (void*)addr, otherthread);
-				#endif
+#else
+#ifdef DBGBUF
+                auto [base, var] = get_var((void*)addr);
+                if (var) {
+                    if (base != (void*)addr) {
+				        fprintf(stderr, "Found data race: Thread %i wrote to '%s+%lu'[%p] without synchronizing with thread %i\n",
+                                owner2, var, addr - (intptr_t)base, (void*)addr, otherthread);
+
+                    } else {
+				        fprintf(stderr, "Found data race: Thread %i wrote to '%s'[%p] without synchronizing with thread %i\n",
+                                owner2, var, (void*)addr, otherthread);
+                    }
+
+                } else
+#endif //DBGBUF
+				    fprintf(stderr, "Found data race: Thread %i wrote to [%p] without synchronizing with thread %i\n", owner2, (void*)addr, otherthread);
+#endif
 				racecount++;
 			}
 			// else
