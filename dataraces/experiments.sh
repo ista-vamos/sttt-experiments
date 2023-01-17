@@ -9,6 +9,10 @@ rm -f results-*.csv
 
 source ../setup.sh
 
+# some benchmark contain assertions that can be violated,
+# do not dump core file in such cases
+ulimit -c 0
+
 for I in `seq 1 $DATARACES_HARNESS_NUM`; do
 	if [ "$DATARACES_SHORT" = "yes" ]; then
 		for FILE in $(ls benchmarks/fib*.i); do
