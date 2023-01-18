@@ -55,7 +55,7 @@ bank-original: outdir
 	-cp paper_figure_6.pdf $(OUTDIR)
 
 dataraces-original: outdir
-	python3 scripts/dataraces-analyze.py $(ORIGINALDATA)/dataraces/results-pure.csv  $(ORIGINALDATA)/dataraces/results.csv
+	python3 scripts/dataraces-analyze.py $(ORIGINALDATA)/dataraces/results.csv
 	-cp dataraces_correctenss.pdf $(OUTDIR)paper_dataraces_correctenss.pdf
 	-cp dataraces_errors.pdf $(OUTDIR)paper_dataraces_errors.pdf
 	-cp dataraces_memory.pdf $(OUTDIR)paper_dataraces_memory.pdf
@@ -98,8 +98,7 @@ bank:
 	-cp bank_plot*.pdf $(OUTDIR)
 
 dataraces: outdir
-	grep -v None $(EXPERIMENTSDIR)/dataraces/results.csv > $(EXPERIMENTSDIR)/dataraces/results-pure.csv
-	python3 scripts/dataraces-analyze.py $(EXPERIMENTSDIR)/dataraces/results-pure.csv  $(EXPERIMENTSDIR)/dataraces/results.csv
+	python3 scripts/dataraces-analyze.py $(EXPERIMENTSDIR)/dataraces/results.csv
 	-cp dataraces_correctenss.pdf $(OUTDIR)
 	-cp dataraces_errors.pdf $(OUTDIR)
 	-cp dataraces_memory.pdf $(OUTDIR)
