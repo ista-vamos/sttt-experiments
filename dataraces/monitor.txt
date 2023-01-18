@@ -57,7 +57,7 @@ $$
     uint64_t dropcount=0;
     uint64_t holescount=0;
     int seenNone=0;
-
+    int findleast=0;
     #define min(a, b) __vamos_min(a, b)
     #define max(a, b) __vamos_max(a, b)
 $$
@@ -70,7 +70,7 @@ $$
 
 arbiter : GlobalEvent
 {
-    choose T from Threads where $$ $T.nextts; <= nextts && ($T.nextts; == nextts || $T.nonecount; < nonebarrier || $T.nonets; < nextts) $$
+    choose T from Threads where $$ ($T.nextts; <= nextts && ($T.nextts; == nextts || $T.nonecount; < nonebarrier || $T.nonets; < nextts)) || (findleast && $T.nextts; < leastts) $$
     {
         on T : | read(ts,addr)
         $$
@@ -81,6 +81,7 @@ arbiter : GlobalEvent
                 $drop 1 from T;
                 nextts++;
                 leastts=ULLONG_MAX;
+                findleast=0;
             }
             else if(ts>nextts)
             {
@@ -102,6 +103,7 @@ arbiter : GlobalEvent
                 $drop 1 from T;
                 nextts++;
                 leastts=ULLONG_MAX;
+                findleast=0;
             }
             else if(ts>nextts)
             {
@@ -121,6 +123,7 @@ arbiter : GlobalEvent
                 $drop 1 from T;
                 nextts++;
                 leastts=ULLONG_MAX;
+                findleast=0;
             }
             else if(ts>nextts)
             {
@@ -142,6 +145,7 @@ arbiter : GlobalEvent
                 $drop 1 from T;
                 nextts++;
                 leastts=ULLONG_MAX;
+                findleast=0;
             }
             else if(ts>nextts)
             {
@@ -162,6 +166,7 @@ arbiter : GlobalEvent
                 $drop 1 from T;
                 nextts++;
                 leastts=ULLONG_MAX;
+                findleast=0;
             }
             else if(ts>nextts)
             {
@@ -181,6 +186,7 @@ arbiter : GlobalEvent
                 $drop 1 from T;
                 nextts++;
                 leastts=ULLONG_MAX;
+                findleast=0;
             }
             else if(ts>nextts)
             {
@@ -200,6 +206,7 @@ arbiter : GlobalEvent
                 $drop 1 from T;
                 nextts++;
                 leastts=ULLONG_MAX;
+                findleast=0;
             }
             else if(ts>nextts)
             {
@@ -219,6 +226,7 @@ arbiter : GlobalEvent
                 $drop 1 from T;
                 nextts++;
                 leastts=ULLONG_MAX;
+                findleast=0;
             }
             else if(ts>nextts)
             {
@@ -238,6 +246,7 @@ arbiter : GlobalEvent
                 $drop 1 from T;
                 nextts++;
                 leastts=ULLONG_MAX;
+                findleast=0;
             }
             else if(ts>nextts)
             {
@@ -257,6 +266,7 @@ arbiter : GlobalEvent
                 $drop 1 from T;
                 nextts++;
                 leastts=ULLONG_MAX;
+                findleast=0;
             }
             else if(ts>nextts)
             {
@@ -276,6 +286,7 @@ arbiter : GlobalEvent
                 $drop 1 from T;
                 nextts++;
                 leastts=ULLONG_MAX;
+                findleast=0;
             }
             else if(ts>nextts)
             {
@@ -295,6 +306,7 @@ arbiter : GlobalEvent
                 $drop 1 from T;
                 nextts++;
                 leastts=ULLONG_MAX;
+                findleast=0;
             }
             else if(ts>nextts)
             {
@@ -308,20 +320,24 @@ arbiter : GlobalEvent
         $$
         on T : | my_hole(n, mints, maxts)
         $$
-            printf("\033[36m[a] my_hole(n=%d, mints=%lu, maxts=%lu)\033[0m\n", n, mints, maxts);
-            if(mints<=nextts)
+            #ifdef DEBUGPRINT
+            printf("\033[36m//[a] my_hole(n=%d, mints=%lu, maxts=%lu)\033[0m\n", n, mints, maxts);
+            #endif
+            if(mints<=nextts&&maxts>$T.nextts;)
             {
                 skipcount+=n;
                 dropcount+=n;
                 $yield skipstart(T.threadid, nextts);
                 $T.nextts;=maxts;
                 leastts=maxts;
+                findleast=1; //to avoid geting stuck on just this leastts
                 if(maxts<=nextts)
                 {
                     $yield skipend(T.threadid, nextts);
                     $drop 1 from T;
-        	    ++holescount;
+        	        ++holescount;
                     leastts=ULLONG_MAX;
+                    findleast=0;
                 }
                 if(mints==nextts)
                 {
@@ -332,14 +348,19 @@ arbiter : GlobalEvent
             {
                 $yield skipend(T.threadid, maxts);
                 $drop 1 from T;
-        	++holescount;
+                ++holescount;
                 nextts++;
                 leastts=ULLONG_MAX;
+                findleast=0;
             }
-            else
+            else if($T.nextts;<maxts)
             {
                 $T.nextts;=mints;
                 leastts=min(leastts, mints);
+            }
+            else
+            {
+                leastts=min(leastts, maxts);
             }
         $$
         on T : done
@@ -370,6 +391,10 @@ arbiter : GlobalEvent
             nextts=leastts;
             nonebarrier=1;
             nonecycles=0;
+        }
+        else if(leastts==ULONG_MAX)
+        {
+            findleast=1;
         }
         else
         {                
