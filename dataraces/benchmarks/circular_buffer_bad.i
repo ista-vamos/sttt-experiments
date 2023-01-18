@@ -1,22 +1,11 @@
 // This file is part of the SV-Benchmarks collection of verification tasks:
 // https://github.com/sosy-lab/sv-benchmarks
 //
-// SPDX-FileCopyrightText: 2018 The Nidhugg project
-// SPDX-FileCopyrightText: 2011-2020 The SV-Benchmarks community
-// SPDX-FileCopyrightText: The ESBMC project
+// SPDX-FileCopyrightText: 2016 SCTBench Project
+// SPDX-FileCopyrightText: The ESBMC Project
 //
-// SPDX-License-Identifier: Apache-2.0 AND GPL-3.0-or-later
-
-extern void __assert_fail (const char *__assertion, const char *__file,
-      unsigned int __line, const char *__function)
-     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__noreturn__));
-extern void __assert_perror_fail (int __errnum, const char *__file,
-      unsigned int __line, const char *__function)
-     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__noreturn__));
-extern void __assert (const char *__assertion, const char *__file, int __line)
-     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__noreturn__));
-void abort(void);
-void reach_error() { ((void) sizeof ((0) ? 1 : 0), __extension__ ({ if (0) ; else __assert_fail ("0", "", 0, __extension__ __PRETTY_FUNCTION__); })); }
+// SPDX-License-Identifier: Apache-2.0
+// https://github.com/mc-imperial/sctbench/blob/master/benchmarks/concurrent-software-benchmarks/circular_buffer_bad.c
 typedef unsigned char __u_char;
 typedef unsigned short int __u_short;
 typedef unsigned int __u_int;
@@ -680,50 +669,98 @@ extern int pthread_getcpuclockid (pthread_t __thread_id,
 extern int pthread_atfork (void (*__prepare) (void),
       void (*__parent) (void),
       void (*__child) (void)) __attribute__ ((__nothrow__ , __leaf__));
-int i, j;
-extern void __VERIFIER_atomic_begin(void);
-extern void __VERIFIER_atomic_end(void);
-int p, q;
-void *t1(void *arg) {
-  for (p = 0; p < 5; p++) {
-    __VERIFIER_atomic_begin();
-    i = i + j;
-    __VERIFIER_atomic_end();
+extern void __assert_fail (const char *__assertion, const char *__file,
+      unsigned int __line, const char *__function)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__noreturn__));
+extern void __assert_perror_fail (int __errnum, const char *__file,
+      unsigned int __line, const char *__function)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__noreturn__));
+extern void __assert (const char *__assertion, const char *__file, int __line)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__noreturn__));
+void abort(void);
+void reach_error() { ((void) sizeof ((0) ? 1 : 0), __extension__ ({ if (0) ; else __assert_fail ("0", "", 0, __extension__ __PRETTY_FUNCTION__); })); }
+static char buffer[10];
+static unsigned int first;
+static unsigned int next;
+static int buffer_size;
+_Bool send, receive;
+pthread_mutex_t m;
+void initLog(int max)
+{
+  buffer_size = max;
+  first = next = 0;
+}
+int removeLogElement(void)
+{
+  if (next > 0 && first < buffer_size)
+  {
+    first++;
+    return buffer[first-1];
+  }
+  else
+  {
+    return -1;
+  }
+}
+int insertLogElement(int b)
+{
+  if (next < buffer_size && buffer_size > 0)
+  {
+    buffer[next] = b;
+    next = (next+1)%buffer_size;
+    
+	if(next<buffer_size) ;
+    else ERROR: {reach_error();abort();}
+  }
+  else
+  {
+    return -1;
+  }
+  return b;
+}
+void *t1(void *arg)
+{
+  int i;
+  for(i=0; i<7; i++)
+  {
+    pthread_mutex_lock(&m);
+    if (send)
+    {
+      insertLogElement(i);
+      send=0;
+      receive=1;
+    }
+    pthread_mutex_unlock(&m);
   }
   return ((void *)0);
 }
-void *t2(void *arg) {
-  for (q = 0; q < 5; q++) {
-    __VERIFIER_atomic_begin();
-    j = j + i;
-    __VERIFIER_atomic_end();
+void *t2(void *arg)
+{
+  int i;
+  for(i=0; i<7; i++)
+  {
+    pthread_mutex_lock(&m);
+    if (receive)
+    {
+	  if(removeLogElement()==i) ;
+      else ERROR: {reach_error();abort();}
+      receive=0;
+      send=1;
+    }
+    pthread_mutex_unlock(&m);
   }
   return ((void *)0);
 }
-int cur = 1, prev = 0, next = 0;
-int x;
-int fib() {
-  for (x = 0; x < 12; x++) {
-    next = prev + cur;
-    prev = cur;
-    cur = next;
-  }
-  return prev;
-}
-int main(int argc, char **argv) {
+int main()
+{
   pthread_t id1, id2;
-  __VERIFIER_atomic_begin();
-  i = 1;
-  __VERIFIER_atomic_end();
-  __VERIFIER_atomic_begin();
-  j = 1;
-  __VERIFIER_atomic_end();
+  pthread_mutex_init(&m, 0);
+  initLog(10);
+  send=1;
+  receive=0;
   pthread_create(&id1, ((void *)0), t1, ((void *)0));
   pthread_create(&id2, ((void *)0), t2, ((void *)0));
-  int correct = fib();
-  
-  if(i <= correct && j <= correct) ;
-  else ERROR: {reach_error();abort();}
-  
+  pthread_join(id1, ((void *)0));
+  pthread_join(id2, ((void *)0));
   return 0;
 }

@@ -1,22 +1,10 @@
 // This file is part of the SV-Benchmarks collection of verification tasks:
 // https://github.com/sosy-lab/sv-benchmarks
 //
-// SPDX-FileCopyrightText: 2018 The Nidhugg project
-// SPDX-FileCopyrightText: 2011-2020 The SV-Benchmarks community
-// SPDX-FileCopyrightText: The ESBMC project
+// SPDX-FileCopyrightText: 2016 SCTBench Project
+// SPDX-FileCopyrightText: The ESBMC Project
 //
-// SPDX-License-Identifier: Apache-2.0 AND GPL-3.0-or-later
-
-extern void __assert_fail (const char *__assertion, const char *__file,
-      unsigned int __line, const char *__function)
-     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__noreturn__));
-extern void __assert_perror_fail (int __errnum, const char *__file,
-      unsigned int __line, const char *__function)
-     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__noreturn__));
-extern void __assert (const char *__assertion, const char *__file, int __line)
-     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__noreturn__));
-void abort(void);
-void reach_error() { ((void) sizeof ((0) ? 1 : 0), __extension__ ({ if (0) ; else __assert_fail ("0", "", 0, __extension__ __PRETTY_FUNCTION__); })); }
+// SPDX-License-Identifier: Apache-2.0
 typedef unsigned char __u_char;
 typedef unsigned short int __u_short;
 typedef unsigned int __u_int;
@@ -680,50 +668,43 @@ extern int pthread_getcpuclockid (pthread_t __thread_id,
 extern int pthread_atfork (void (*__prepare) (void),
       void (*__parent) (void),
       void (*__child) (void)) __attribute__ ((__nothrow__ , __leaf__));
-int i, j;
+extern void __assert_fail (const char *__assertion, const char *__file,
+      unsigned int __line, const char *__function)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__noreturn__));
+extern void __assert_perror_fail (int __errnum, const char *__file,
+      unsigned int __line, const char *__function)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__noreturn__));
+extern void __assert (const char *__assertion, const char *__file, int __line)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__noreturn__));
+void abort(void);
+void reach_error() { ((void) sizeof ((0) ? 1 : 0), __extension__ ({ if (0) ; else __assert_fail ("0", "", 0, __extension__ __PRETTY_FUNCTION__); })); }
 extern void __VERIFIER_atomic_begin(void);
 extern void __VERIFIER_atomic_end(void);
-int p, q;
-void *t1(void *arg) {
-  for (p = 0; p < 7; p++) {
-    __VERIFIER_atomic_begin();
-    i = i + j;
-    __VERIFIER_atomic_end();
-  }
-  return ((void *)0);
-}
-void *t2(void *arg) {
-  for (q = 0; q < 7; q++) {
-    __VERIFIER_atomic_begin();
-    j = j + i;
-    __VERIFIER_atomic_end();
-  }
-  return ((void *)0);
-}
-int cur = 1, prev = 0, next = 0;
-int x;
-int fib() {
-  for (x = 0; x < 16; x++) {
-    next = prev + cur;
-    prev = cur;
-    cur = next;
-  }
-  return prev;
-}
-int main(int argc, char **argv) {
-  pthread_t id1, id2;
+static int a, b;
+int i;
+static void *setThread(void *param) {
   __VERIFIER_atomic_begin();
-  i = 1;
+  a = 1;
   __VERIFIER_atomic_end();
   __VERIFIER_atomic_begin();
-  j = 1;
+  b = -1;
   __VERIFIER_atomic_end();
-  pthread_create(&id1, ((void *)0), t1, ((void *)0));
-  pthread_create(&id2, ((void *)0), t2, ((void *)0));
-  int correct = fib();
-  
-  if(i <= correct && j <= correct) ;
+  return ((void *)0);
+}
+static void *checkThread(void *param) {
+  if((a == 0 && b == 0) || (a == 1 && b == -1) || 1) ;
   else ERROR: {reach_error();abort();}
-  
-  return 0;
+  return ((void *)0);
+}
+int main(int argc, char *argv[]) {
+  pthread_t setPool[(51 -1)];
+  pthread_t checkPool[1];
+  for (i = 0; i < (51 -1); i++)
+    pthread_create(&setPool[i], ((void *)0), &setThread, ((void *)0));
+  for (i = 0; i < 1; i++)
+    pthread_create(&checkPool[i], ((void *)0), &checkThread, ((void *)0));
+  for (i = 0; i < (51 -1); i++)
+    pthread_join(setPool[i], ((void *)0));
+  for (i = 0; i < 1; i++)
+    pthread_join(checkPool[i], ((void *)0));
 }

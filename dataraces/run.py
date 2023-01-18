@@ -4,10 +4,19 @@ import sys
 from subprocess import run, Popen, PIPE, DEVNULL, TimeoutExpired
 from os.path import dirname, abspath, basename, isfile
 
+from signal import SIGKILL, SIGTERM
+from os import killpg, setpgid
+
+
 from randomharness import gen_harness
 
 sys.path.append(abspath(f"{dirname(__file__)}/.."))
 import config
+
+DIR = abspath(dirname(sys.argv[0]))
+TIMEOUT = 5
+REPEAT_NUM = 3
+CSVFILE="results.csv"
 
 opt = "opt"
 link = "llvm-link"
@@ -16,11 +25,6 @@ link = "llvm-link"
 # 0.01user 0.00system 0:00.03elapsed 48%CPU (0avgtext+0avgdata 25772maxresident)k
 # 0inputs+0outputs (0major+1946minor)pagefaults 0swaps
 timecmd = "/bin/time"
-
-DIR = abspath(dirname(sys.argv[0]))
-TIMEOUT = 5
-REPEAT_NUM = 7
-CSVFILE="results.csv"
 
 
 def cmd(args):
@@ -135,10 +139,14 @@ def run_once():
 
     # --- run VAMOS
     result.setdefault("vamos", {})["races"] = 0
+    def set_pgroup():
+        setpgid(0, 0)
     try:
         cmd(["rm", "-f", "/dev/shm/vrd*"])
-        proc = Popen([timecmd, "./a.vamos.out"], stderr=PIPE, stdout=DEVNULL)
-        mon = Popen(["./monitor", "Program:generic:/vrd"], stderr=PIPE, stdout=DEVNULL)
+        proc = Popen([timecmd, "./a.vamos.out"],
+                     stderr=PIPE, stdout=DEVNULL, preexec_fn=set_pgroup)
+        mon  = Popen([timecmd, "./monitor", "Program:generic:/vrd"],
+                     stderr=PIPE, stdout=DEVNULL, preexec_fn=set_pgroup)
         _, err_proc = proc.communicate(timeout=TIMEOUT)
         _, err_mon = mon.communicate(timeout=TIMEOUT)
 
@@ -149,6 +157,11 @@ def run_once():
                 words = line.split()
                 result["vamos"]["dropped"] = int(words[1])
                 result["vamos"]["holes"] = int(words[4])
+            elif b"elapsed" in line and b"maxresident" in line:
+                words = line.split()
+                result["vamos"]["maxmem-mon"] = int(
+                    words[5][0 : words[5].find(b"maxresident")]
+                )
         for line in err_proc.splitlines():
             if b"elapsed" in line and b"maxresident" in line:
                 words = line.split()
@@ -163,8 +176,14 @@ def run_once():
     except TimeoutExpired:
         result["vamos"]["races"] = "TO"
     finally:
-        proc.kill()
-        mon.kill()
+        if proc.poll() is None:
+            killpg(proc.pid, SIGTERM)
+            killpg(proc.pid, SIGKILL)
+        if mon.poll() is None:
+            killpg(mon.pid, SIGTERM)
+            killpg(mon.pid, SIGKILL)
+       #proc.kill()
+       #mon.kill()
 
     # the output is:
     # benchmark,
@@ -178,7 +197,7 @@ def run_once():
             res.get(k) for k in ("races", "usertime", "systime", "time", "maxmem")
         ]
         if tool == "vamos":
-            ret += [res.get(k) for k in ("eventsnum", "dropped", "holes")]
+            ret += [res.get(k) for k in ("maxmem-mon", "eventsnum", "dropped", "holes")]
 
     return ret
 
@@ -211,7 +230,8 @@ def run_rep(infile, csvfile):
             # write the header
             print("benchmark,tsan-races,tsan-usertime,tsan-systime,tsan-time,tsan-maxmem,"\
                   "helgrind-races,helgrind-usertime,helgrind-systime,helgrind-time,helgrind-maxmem,"\
-                  "vamos-races,vamos-usertime,vamos-systime,vamos-time,vamos-maxmem,vamos-eventsnum,vamos-dropped,vamos-holes",
+                  "vamos-races,vamos-usertime,vamos-systime,vamos-time,vamos-maxmem,vamos-maxmem-mon,"\
+                  "vamos-eventsnum,vamos-dropped,vamos-holes",
                   file=csvstream)
 
     while True:
@@ -224,7 +244,7 @@ def run_rep(infile, csvfile):
             print(basename(infile),",", ",".join((str(r) for r in result)), file=csvstream)
 
         sys.stdout.flush()
-        assert len(result) == 18
+        assert len(result) == 19
         #results.append(result)
         n += 1
         if n == REPEAT_NUM:

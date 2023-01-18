@@ -2,11 +2,15 @@
 // https://github.com/sosy-lab/sv-benchmarks
 //
 // SPDX-FileCopyrightText: 2018 The Nidhugg project
-// SPDX-FileCopyrightText: 2011-2020 The SV-Benchmarks community
-// SPDX-FileCopyrightText: The ESBMC project
+// SPDX-FileCopyrightText: 2017 Texas A&M University
 //
-// SPDX-License-Identifier: Apache-2.0 AND GPL-3.0-or-later
+// SPDX-License-Identifier: MIT AND GPL-3.0-or-later
 
+/*
+ * This benchmark is part of SWSC
+ * Get inspiration from the Ariline example in Tables 1 and 2 in the PLDI 2015
+ * paper: https://dl.acm.org/doi/pdf/10.1145/2737924.2737975
+ */
 extern void __assert_fail (const char *__assertion, const char *__file,
       unsigned int __line, const char *__function)
      __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__noreturn__));
@@ -680,49 +684,74 @@ extern int pthread_getcpuclockid (pthread_t __thread_id,
 extern int pthread_atfork (void (*__prepare) (void),
       void (*__parent) (void),
       void (*__child) (void)) __attribute__ ((__nothrow__ , __leaf__));
-int i, j;
+typedef __int8_t int8_t;
+typedef __int16_t int16_t;
+typedef __int32_t int32_t;
+typedef __int64_t int64_t;
+typedef __uint8_t uint8_t;
+typedef __uint16_t uint16_t;
+typedef __uint32_t uint32_t;
+typedef __uint64_t uint64_t;
+typedef __int_least8_t int_least8_t;
+typedef __int_least16_t int_least16_t;
+typedef __int_least32_t int_least32_t;
+typedef __int_least64_t int_least64_t;
+typedef __uint_least8_t uint_least8_t;
+typedef __uint_least16_t uint_least16_t;
+typedef __uint_least32_t uint_least32_t;
+typedef __uint_least64_t uint_least64_t;
+typedef signed char int_fast8_t;
+typedef long int int_fast16_t;
+typedef long int int_fast32_t;
+typedef long int int_fast64_t;
+typedef unsigned char uint_fast8_t;
+typedef unsigned long int uint_fast16_t;
+typedef unsigned long int uint_fast32_t;
+typedef unsigned long int uint_fast64_t;
+typedef long int intptr_t;
+typedef unsigned long int uintptr_t;
+typedef __intmax_t intmax_t;
+typedef __uintmax_t uintmax_t;
 extern void __VERIFIER_atomic_begin(void);
 extern void __VERIFIER_atomic_end(void);
-int p, q;
-void *t1(void *arg) {
-  for (p = 0; p < 7; p++) {
-    __VERIFIER_atomic_begin();
-    i = i + j;
-    __VERIFIER_atomic_end();
+int numberOfSeatsSold;
+int stopSales;
+int numOfTickets;
+void *salethread(void *arg) {
+  if (!stopSales) {
+    int _numberOfSeatsSold = numberOfSeatsSold;
+    if (_numberOfSeatsSold >= (25 - (((25 / 10) == 0) ? 1 : (25 / 10)))) {
+      __VERIFIER_atomic_begin();
+      stopSales = 1;
+      __VERIFIER_atomic_end();
+    } else {
+      __VERIFIER_atomic_begin();
+      numberOfSeatsSold = _numberOfSeatsSold + 1;
+      __VERIFIER_atomic_end();
+    }
   }
   return ((void *)0);
-}
-void *t2(void *arg) {
-  for (q = 0; q < 7; q++) {
-    __VERIFIER_atomic_begin();
-    j = j + i;
-    __VERIFIER_atomic_end();
-  }
-  return ((void *)0);
-}
-int cur = 1, prev = 0, next = 0;
-int x;
-int fib() {
-  for (x = 0; x < 16; x++) {
-    next = prev + cur;
-    prev = cur;
-    cur = next;
-  }
-  return prev;
 }
 int main(int argc, char **argv) {
-  pthread_t id1, id2;
+  pthread_t salethreads[25];
   __VERIFIER_atomic_begin();
-  i = 1;
+  numOfTickets = 25;
   __VERIFIER_atomic_end();
   __VERIFIER_atomic_begin();
-  j = 1;
+  numberOfSeatsSold = 0;
   __VERIFIER_atomic_end();
-  pthread_create(&id1, ((void *)0), t1, ((void *)0));
-  pthread_create(&id2, ((void *)0), t2, ((void *)0));
-  int correct = fib();
+  __VERIFIER_atomic_begin();
+  stopSales = 0;
+  __VERIFIER_atomic_end();
+  for (int i = 0; i < 25; i++) {
+    pthread_create(&salethreads[i], 0, salethread, ((void *)0));
+  }
+  for (int i = 0; i < 25; i++) {
+    pthread_join(salethreads[i], 0);
+  }
+  int _numberOfSeatsSold = numberOfSeatsSold;
   
-  if(i < correct && j < correct) ;
+  if(_numberOfSeatsSold <= (25 - (((25 / 10) == 0) ? 1 : (25 / 10)))) ;
   else ERROR: {reach_error();abort();}
   
   return 0;

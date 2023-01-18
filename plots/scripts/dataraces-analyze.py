@@ -20,7 +20,7 @@ data = pd.read_csv(infile, header=0, skiprows=1,
                           "tsan-races", "tsan-usertime", "tsan-systime", "tsan-time", "tsan-mem",
                           "hel-races", "hel-usertime", "hel-systime", "hel-time", "hel-mem",
                           "vamos-races", "vamos-usertime", "vamos-systime", "vamos-time", "vamos-mem",
-                          "vamos-eventsnum", "vamos-drop", "vamos-holes"],
+                          "vamos-mem-mon", "vamos-eventsnum", "vamos-drop", "vamos-holes"],
                    #dtype = {"tsan-time": float,
                    #         "hel-time" : float,
                    #         "vamos-time" : float }
@@ -79,7 +79,7 @@ data2["tsan-mem"] = data2["tsan-mem"].astype(float) / 1024.0
 data2 = data2[data2["hel-races"] != "TO"]
 data2["hel-mem"] = data2["hel-mem"].astype(float) / 1024.0
 data2 = data2[data2["vamos-races"] != "TO"]
-data2["vamos-mem"] = data2["vamos-mem"].astype(float) / 1024.0
+data2["vamos-mem"] = (data2["vamos-mem"].astype(float) + data2["vamos-mem-mon"].astype(float)) / 1024.0
 
 fig = plt.figure(figsize=(6,6))
 fig.tight_layout()

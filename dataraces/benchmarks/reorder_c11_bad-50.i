@@ -1,20 +1,10 @@
 // This file is part of the SV-Benchmarks collection of verification tasks:
 // https://github.com/sosy-lab/sv-benchmarks
 //
-// SPDX-FileCopyrightText: 2018 The Nidhugg project
-// SPDX-FileCopyrightText: 2011-2020 The SV-Benchmarks community
-// SPDX-FileCopyrightText: The ESBMC project
+// SPDX-FileCopyrightText: 2016 SCTBench Project
+// SPDX-FileCopyrightText: The ESBMC Project
 //
-// SPDX-License-Identifier: Apache-2.0 AND GPL-3.0-or-later
-extern void __assert_fail (const char *__assertion, const char *__file,
-      unsigned int __line, const char *__function)
-     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__noreturn__));
-extern void __assert_perror_fail (int __errnum, const char *__file,
-      unsigned int __line, const char *__function)
-     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__noreturn__));
-extern void __assert (const char *__assertion, const char *__file, int __line)
-     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__noreturn__));
-
+// SPDX-License-Identifier: Apache-2.0
 typedef unsigned char __u_char;
 typedef unsigned short int __u_short;
 typedef unsigned int __u_int;
@@ -25,8 +15,8 @@ typedef signed short int __int16_t;
 typedef unsigned short int __uint16_t;
 typedef signed int __int32_t;
 typedef unsigned int __uint32_t;
-__extension__ typedef signed long long int __int64_t;
-__extension__ typedef unsigned long long int __uint64_t;
+typedef signed long int __int64_t;
+typedef unsigned long int __uint64_t;
 typedef __int8_t __int_least8_t;
 typedef __uint8_t __uint_least8_t;
 typedef __int16_t __int_least16_t;
@@ -35,50 +25,50 @@ typedef __int32_t __int_least32_t;
 typedef __uint32_t __uint_least32_t;
 typedef __int64_t __int_least64_t;
 typedef __uint64_t __uint_least64_t;
-__extension__ typedef long long int __quad_t;
-__extension__ typedef unsigned long long int __u_quad_t;
-__extension__ typedef long long int __intmax_t;
-__extension__ typedef unsigned long long int __uintmax_t;
-__extension__ typedef __uint64_t __dev_t;
-__extension__ typedef unsigned int __uid_t;
-__extension__ typedef unsigned int __gid_t;
-__extension__ typedef unsigned long int __ino_t;
-__extension__ typedef __uint64_t __ino64_t;
-__extension__ typedef unsigned int __mode_t;
-__extension__ typedef unsigned int __nlink_t;
-__extension__ typedef long int __off_t;
-__extension__ typedef __int64_t __off64_t;
-__extension__ typedef int __pid_t;
-__extension__ typedef struct { int __val[2]; } __fsid_t;
-__extension__ typedef long int __clock_t;
-__extension__ typedef unsigned long int __rlim_t;
-__extension__ typedef __uint64_t __rlim64_t;
-__extension__ typedef unsigned int __id_t;
-__extension__ typedef long int __time_t;
-__extension__ typedef unsigned int __useconds_t;
-__extension__ typedef long int __suseconds_t;
-__extension__ typedef int __daddr_t;
-__extension__ typedef int __key_t;
-__extension__ typedef int __clockid_t;
-__extension__ typedef void * __timer_t;
-__extension__ typedef long int __blksize_t;
-__extension__ typedef long int __blkcnt_t;
-__extension__ typedef __int64_t __blkcnt64_t;
-__extension__ typedef unsigned long int __fsblkcnt_t;
-__extension__ typedef __uint64_t __fsblkcnt64_t;
-__extension__ typedef unsigned long int __fsfilcnt_t;
-__extension__ typedef __uint64_t __fsfilcnt64_t;
-__extension__ typedef int __fsword_t;
-__extension__ typedef int __ssize_t;
-__extension__ typedef long int __syscall_slong_t;
-__extension__ typedef unsigned long int __syscall_ulong_t;
+typedef long int __quad_t;
+typedef unsigned long int __u_quad_t;
+typedef long int __intmax_t;
+typedef unsigned long int __uintmax_t;
+typedef unsigned long int __dev_t;
+typedef unsigned int __uid_t;
+typedef unsigned int __gid_t;
+typedef unsigned long int __ino_t;
+typedef unsigned long int __ino64_t;
+typedef unsigned int __mode_t;
+typedef unsigned long int __nlink_t;
+typedef long int __off_t;
+typedef long int __off64_t;
+typedef int __pid_t;
+typedef struct { int __val[2]; } __fsid_t;
+typedef long int __clock_t;
+typedef unsigned long int __rlim_t;
+typedef unsigned long int __rlim64_t;
+typedef unsigned int __id_t;
+typedef long int __time_t;
+typedef unsigned int __useconds_t;
+typedef long int __suseconds_t;
+typedef long int __suseconds64_t;
+typedef int __daddr_t;
+typedef int __key_t;
+typedef int __clockid_t;
+typedef void * __timer_t;
+typedef long int __blksize_t;
+typedef long int __blkcnt_t;
+typedef long int __blkcnt64_t;
+typedef unsigned long int __fsblkcnt_t;
+typedef unsigned long int __fsblkcnt64_t;
+typedef unsigned long int __fsfilcnt_t;
+typedef unsigned long int __fsfilcnt64_t;
+typedef long int __fsword_t;
+typedef long int __ssize_t;
+typedef long int __syscall_slong_t;
+typedef unsigned long int __syscall_ulong_t;
 typedef __off64_t __loff_t;
 typedef char *__caddr_t;
-__extension__ typedef int __intptr_t;
-__extension__ typedef unsigned int __socklen_t;
+typedef long int __intptr_t;
+typedef unsigned int __socklen_t;
 typedef int __sig_atomic_t;
-__extension__ typedef __int64_t __time64_t;
-typedef unsigned int size_t;
+typedef long unsigned int size_t;
 typedef __time_t time_t;
 struct timespec
 {
@@ -90,20 +80,15 @@ struct sched_param
 {
   int sched_priority;
 };
-
-
 typedef unsigned long int __cpu_mask;
 typedef struct
 {
   __cpu_mask __bits[1024 / (8 * sizeof (__cpu_mask))];
 } cpu_set_t;
-
 extern int __sched_cpucount (size_t __setsize, const cpu_set_t *__setp)
      __attribute__ ((__nothrow__ , __leaf__));
 extern cpu_set_t *__sched_cpualloc (size_t __count) __attribute__ ((__nothrow__ , __leaf__)) ;
 extern void __sched_cpufree (cpu_set_t *__set) __attribute__ ((__nothrow__ , __leaf__));
-
-
 extern int sched_setparam (__pid_t __pid, const struct sched_param *__param)
      __attribute__ ((__nothrow__ , __leaf__));
 extern int sched_getparam (__pid_t __pid, struct sched_param *__param) __attribute__ ((__nothrow__ , __leaf__));
@@ -114,7 +99,6 @@ extern int sched_yield (void) __attribute__ ((__nothrow__ , __leaf__));
 extern int sched_get_priority_max (int __algorithm) __attribute__ ((__nothrow__ , __leaf__));
 extern int sched_get_priority_min (int __algorithm) __attribute__ ((__nothrow__ , __leaf__));
 extern int sched_rr_get_interval (__pid_t __pid, struct timespec *__t) __attribute__ ((__nothrow__ , __leaf__));
-
 typedef __clock_t clock_t;
 struct tm
 {
@@ -148,7 +132,6 @@ struct __locale_struct
 };
 typedef struct __locale_struct *__locale_t;
 typedef __locale_t locale_t;
-
 extern clock_t clock (void) __attribute__ ((__nothrow__ , __leaf__));
 extern time_t time (time_t *__timer) __attribute__ ((__nothrow__ , __leaf__));
 extern double difftime (time_t __time1, time_t __time0)
@@ -205,7 +188,6 @@ extern int timer_gettime (timer_t __timerid, struct itimerspec *__value)
 extern int timer_getoverrun (timer_t __timerid) __attribute__ ((__nothrow__ , __leaf__));
 extern int timespec_get (struct timespec *__ts, int __base)
      __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
-
 typedef struct __pthread_internal_list
 {
   struct __pthread_internal_list *__prev;
@@ -220,17 +202,11 @@ struct __pthread_mutex_s
   int __lock;
   unsigned int __count;
   int __owner;
-  int __kind;
   unsigned int __nusers;
-  __extension__ union
-  {
-    struct
-    {
-      short __espins;
-      short __eelision;
-    } __elision_data;
-    __pthread_slist_t __list;
-  };
+  int __kind;
+  short __spins;
+  short __elision;
+  __pthread_list_t __list;
 };
 struct __pthread_rwlock_arch_t
 {
@@ -240,11 +216,12 @@ struct __pthread_rwlock_arch_t
   unsigned int __writers_futex;
   unsigned int __pad3;
   unsigned int __pad4;
-  unsigned char __flags;
-  unsigned char __shared;
-  signed char __rwelision;
-  unsigned char __pad2;
   int __cur_writer;
+  int __shared;
+  signed char __rwelision;
+  unsigned char __pad1[7];
+  unsigned long int __pad2;
+  unsigned int __flags;
 };
 struct __pthread_cond_s
 {
@@ -272,6 +249,12 @@ struct __pthread_cond_s
   unsigned int __wrefs;
   unsigned int __g_signals[2];
 };
+typedef unsigned int __tss_t;
+typedef unsigned long int __thrd_t;
+typedef struct
+{
+  int __data ;
+} __once_flag;
 typedef unsigned long int pthread_t;
 typedef union
 {
@@ -287,14 +270,14 @@ typedef unsigned int pthread_key_t;
 typedef int pthread_once_t;
 union pthread_attr_t
 {
-  char __size[36];
+  char __size[56];
   long int __align;
 };
 typedef union pthread_attr_t pthread_attr_t;
 typedef union
 {
   struct __pthread_mutex_s __data;
-  char __size[24];
+  char __size[40];
   long int __align;
 } pthread_mutex_t;
 typedef union
@@ -306,7 +289,7 @@ typedef union
 typedef union
 {
   struct __pthread_rwlock_arch_t __data;
-  char __size[32];
+  char __size[56];
   long int __align;
 } pthread_rwlock_t;
 typedef union
@@ -317,7 +300,7 @@ typedef union
 typedef volatile int pthread_spinlock_t;
 typedef union
 {
-  char __size[20];
+  char __size[32];
   long int __align;
 } pthread_barrier_t;
 typedef union
@@ -325,7 +308,17 @@ typedef union
   char __size[4];
   int __align;
 } pthread_barrierattr_t;
-typedef int __jmp_buf[6];
+typedef long int __jmp_buf[8];
+typedef struct
+{
+  unsigned long int __val[(1024 / (8 * sizeof (unsigned long int)))];
+} __sigset_t;
+struct __jmp_buf_tag
+  {
+    __jmp_buf __jmpbuf;
+    int __mask_was_saved;
+    __sigset_t __saved_mask;
+  };
 enum
 {
   PTHREAD_CREATE_JOINABLE,
@@ -395,7 +388,6 @@ enum
   PTHREAD_CANCEL_DEFERRED,
   PTHREAD_CANCEL_ASYNCHRONOUS
 };
-
 extern int pthread_create (pthread_t *__restrict __newthread,
       const pthread_attr_t *__restrict __attr,
       void *(*__start_routine) (void *),
@@ -476,13 +468,14 @@ extern int pthread_setcancelstate (int __state, int *__oldstate);
 extern int pthread_setcanceltype (int __type, int *__oldtype);
 extern int pthread_cancel (pthread_t __th);
 extern void pthread_testcancel (void);
+struct __cancel_jmp_buf_tag
+{
+  __jmp_buf __cancel_jmp_buf;
+  int __mask_was_saved;
+};
 typedef struct
 {
-  struct
-  {
-    __jmp_buf __cancel_jmp_buf;
-    int __mask_was_saved;
-  } __cancel_jmp_buf[1];
+  struct __cancel_jmp_buf_tag __cancel_jmp_buf[1];
   void *__pad[4];
 } __pthread_unwind_buf_t __attribute__ ((__aligned__));
 struct __pthread_cleanup_frame
@@ -493,15 +486,15 @@ struct __pthread_cleanup_frame
   int __cancel_type;
 };
 extern void __pthread_register_cancel (__pthread_unwind_buf_t *__buf)
-     __attribute__ ((__regparm__ (1)));
+     ;
 extern void __pthread_unregister_cancel (__pthread_unwind_buf_t *__buf)
-  __attribute__ ((__regparm__ (1)));
+  ;
 extern void __pthread_unwind_next (__pthread_unwind_buf_t *__buf)
-     __attribute__ ((__regparm__ (1))) __attribute__ ((__noreturn__))
+     __attribute__ ((__noreturn__))
      __attribute__ ((__weak__))
      ;
-struct __jmp_buf_tag;
-extern int __sigsetjmp (struct __jmp_buf_tag *__env, int __savemask) __attribute__ ((__nothrow__));
+extern int __sigsetjmp_cancel (struct __cancel_jmp_buf_tag __env[1], int __savemask) __asm__ ("" "__sigsetjmp") __attribute__ ((__nothrow__))
+                     __attribute__ ((__returns_twice__));
 extern int pthread_mutex_init (pthread_mutex_t *__mutex,
           const pthread_mutexattr_t *__mutexattr)
      __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
@@ -675,54 +668,43 @@ extern int pthread_getcpuclockid (pthread_t __thread_id,
 extern int pthread_atfork (void (*__prepare) (void),
       void (*__parent) (void),
       void (*__child) (void)) __attribute__ ((__nothrow__ , __leaf__));
-
-extern void abort(void);
-void reach_error() { ((void) sizeof ((0) ? 1 : 0), __extension__ ({ if (0) ; else __assert_fail ("0", "fib_safe.h", 13, __extension__ __PRETTY_FUNCTION__); })); }
-void __VERIFIER_assert(int expression) { if (!expression) { ERROR: {reach_error();abort();}}; return; }
-int i, j;
+extern void __assert_fail (const char *__assertion, const char *__file,
+      unsigned int __line, const char *__function)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__noreturn__));
+extern void __assert_perror_fail (int __errnum, const char *__file,
+      unsigned int __line, const char *__function)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__noreturn__));
+extern void __assert (const char *__assertion, const char *__file, int __line)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__noreturn__));
+void abort(void);
+void reach_error() { ((void) sizeof ((0) ? 1 : 0), __extension__ ({ if (0) ; else __assert_fail ("0", "", 0, __extension__ __PRETTY_FUNCTION__); })); }
 extern void __VERIFIER_atomic_begin(void);
 extern void __VERIFIER_atomic_end(void);
-int p, q;
-void *t1(void *arg) {
-  for (p = 0; p < 5; p++) {
-    __VERIFIER_atomic_begin();
-    i = i + j;
-    __VERIFIER_atomic_end();
-  }
+static int a, b;
+int i;
+static void *setThread(void *param) {
+  __VERIFIER_atomic_begin();
+  a = 1;
+  __VERIFIER_atomic_end();
+  __VERIFIER_atomic_begin();
+  b = -1;
+  __VERIFIER_atomic_end();
   return ((void *)0);
 }
-void *t2(void *arg) {
-  for (q = 0; q < 5; q++) {
-    __VERIFIER_atomic_begin();
-    j = j + i;
-    __VERIFIER_atomic_end();
-  }
+static void *checkThread(void *param) {
+  if((a == 0 && b == 0) || (a == 1 && b == -1)) ;
+  else ERROR: {reach_error();abort();}
   return ((void *)0);
 }
-int cur = 1, prev = 0, next = 0;
-int x;
-int fib() {
-  for (x = 0; x < 12; x++) {
-    next = prev + cur;
-    prev = cur;
-    cur = next;
-  }
-  return prev;
-}
-int main(int argc, char **argv) {
-  pthread_t id1, id2;
-  __VERIFIER_atomic_begin();
-  i = 1;
-  __VERIFIER_atomic_end();
-  __VERIFIER_atomic_begin();
-  j = 1;
-  __VERIFIER_atomic_end();
-  pthread_create(&id1, ((void *)0), t1, ((void *)0));
-  pthread_create(&id2, ((void *)0), t2, ((void *)0));
-  int correct = fib();
-  __VERIFIER_atomic_begin();
-  _Bool assert_cond = i <= correct && j <= correct;
-  __VERIFIER_atomic_end();
-  __VERIFIER_assert(assert_cond);
-  return 0;
+int main(int argc, char *argv[]) {
+  pthread_t setPool[(51 -1)];
+  pthread_t checkPool[1];
+  for (i = 0; i < (51 -1); i++)
+    pthread_create(&setPool[i], ((void *)0), &setThread, ((void *)0));
+  for (i = 0; i < 1; i++)
+    pthread_create(&checkPool[i], ((void *)0), &checkThread, ((void *)0));
+  for (i = 0; i < (51 -1); i++)
+    pthread_join(setPool[i], ((void *)0));
+  for (i = 0; i < 1; i++)
+    pthread_join(checkPool[i], ((void *)0));
 }
