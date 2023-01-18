@@ -1,5 +1,7 @@
 include ../Makefile.config
 
+ARBITER_BUFFER:=2048
+
 CXX=clang++
 CXXFLAGS=
 CFLAGS=-fPIC -std=c11
@@ -25,7 +27,7 @@ monitor.o: monitor.cpp
 	$(CXX) -I$(vamos_buffers_INCLUDE_DIRS) $(CXXFLAGS) $(CPPFLAGS) monitor.cpp -std=c++17 -c
 
 monitor.c: monitor.txt clean
-	python3 $(MON_COMPILER_PY) monitor.txt -b 512 -o monitor.c
+	python3 $(MON_COMPILER_PY) monitor.txt -b $(ARBITER_BUFFER) -o monitor.c
 	-clang-format -i monitor.c
 
 compiler_utils.o: $(vamos_compiler_DIR)/compiler/cfiles/compiler_utils.c
