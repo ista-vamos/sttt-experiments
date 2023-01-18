@@ -170,3 +170,18 @@ plt.savefig("dataraces_errors.pdf", bbox_inches='tight', dpi=300)
 #sns.violinplot(data=dataG.mean()["vamos-has-race"])
 
 
+# fig = plt.figure(figsize=(6,6))
+# fig.tight_layout()
+# s = plt.scatter(data2["vamos-eventsnum"], data2["vamos-time"], color="DarkGreen", marker="x",  alpha=.5)
+# plt.xscale("log")
+# plt.yscale("log")
+# #plt.grid(ls='--')
+# plt.title("Connecting # of events and time for Vamos")
+# plt.ylabel("VAMOS time [s]")
+# plt.xlabel("# events [s]")
+
+# #plt.subplots_adjust(wspace=0.03, hspace=0)  
+# plt.savefig("dataraces_events_times.pdf", bbox_inches='tight', dpi=300) 
+
+
+

@@ -18,6 +18,12 @@ for I in `seq 1 $DATARACES_HARNESS_NUM`; do
 		for FILE in $(ls benchmarks/fib*.i); do
 			python3 ./run.py $FILE results.csv;
 		done
+		for FILE in $(ls benchmarks/big*.i); do
+			python3 ./run.py $FILE results.csv;
+		done
+		for FILE in $(ls benchmarks/pthread*.i); do
+			python3 ./run.py $FILE results.csv;
+		done
 	else
 		for FILE in $(ls benchmarks/*.i); do
 			python3 ./run.py $FILE results.csv;
