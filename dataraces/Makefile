@@ -12,10 +12,15 @@ ifdef DEBUG
 CFLAGS += -g -O0
 CXXFLAGS += -g -O0
 CPPFLAGS += -DDBGBUF
+else # DEBUG
+ifeq ($(vamos_buffers_BUILD_TYPE), Debug)
+CFLAGS +=-g -O0
+CXXFLAGS +=-g -O0
 else
-CPPFLAGS += -DNDEBUG
 CFLAGS +=-g3 -O3 -flto -fno-fat-lto-objects
 CXXFLAGS +=-g3 -O3 -flto -fno-fat-lto-objects
+CPPFLAGS += -DNDEBUG
+endif
 endif
 
 MON_COMPILER_PY=$(vamos_compiler_DIR)/compiler/main.py
