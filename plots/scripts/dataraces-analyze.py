@@ -74,21 +74,30 @@ plt.gca().set_aspect('equal')
 plt.savefig("dataraces_times.pdf", bbox_inches='tight', dpi=300) 
 
 
-# plt.clf()
-# lim = max(max(data["tsan-mem"]), max(data["hel-mem"]), max(data["vamos-mem"]))
+data2 = data[data["tsan-races"] != "TO"]
+data2["tsan-mem"] = data2["tsan-mem"].astype(float) / 1024.0
+data2 = data2[data2["hel-races"] != "TO"]
+data2["hel-mem"] = data2["hel-mem"].astype(float) / 1024.0
+data2 = data2[data2["vamos-races"] != "TO"]
+data2 = data2[data2["vamos-races"] != "None"]
+data2["vamos-mem"] = data2["vamos-mem"].astype(float) / 1024.0
 
-# ax = data.plot.scatter(x="tsan-mem", y="vamos-mem", c="DarkRed",  marker="x")
-# ax = data.plot.scatter(x="hel-mem", y="vamos-mem", c="DarkGreen", ax = ax, marker="x",
-#                        ylabel="Vamos memory [KB]", xlabel="Tool 2 memory [KB]")
-# ax.set_xlim(0, lim)
-# ax.set_ylim(0,lim)
-# plt.legend(["TSan vs Vamos", "Helgrind vs Vamos"])
+fig = plt.figure(figsize=(6,6))
+fig.tight_layout()
+s = plt.scatter(data2["tsan-mem"], data2["vamos-mem"], color="DarkRed", marker="x",  alpha=.5)
+s = plt.scatter(data2["hel-mem"], data2["vamos-mem"], color="DarkGreen", marker="x", alpha=.5)
+
+# plt.clf()
+lim = max(max(data2["tsan-mem"]), max(data2["hel-mem"]), max(data2["vamos-mem"]))
+plt.xlim(0, lim)
+plt.ylim(0,lim)
+plt.legend(["TSan vs Vamos", "Helgrind vs Vamos"])
 # gca = plt.gca()
 # gca.set_aspect('equal')
-# plt.title("Comparing memory consumption of Vamos vs TSan and Helgrind")
-
-# plt.subplots_adjust(wspace=0.03, hspace=0)  
-# plt.savefig("dataraces_memory.pdf", bbox_inches='tight', dpi=300) 
+plt.ylabel("VAMOS memory [MB]")
+plt.xlabel("Tool 2 memory [MB]")
+plt.title("Comparing memory consumption of Vamos vs TSan and Helgrind")
+plt.savefig("dataraces_memory.pdf", bbox_inches='tight', dpi=300) 
 
 
 # # In[192]:
