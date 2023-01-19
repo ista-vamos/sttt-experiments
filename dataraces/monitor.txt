@@ -1,4 +1,4 @@
-stream type ThreadEvent(threadid: int, tstate : int16_t, nonecount : uint16_t, nextts: uint64_t, nonets: uint64_t, optskipstart : uint64_t)
+stream type ThreadEvent(threadid: int, inhole : int16_t, nonecount : uint16_t, nextts: uint64_t, nonets: uint64_t, optskipstart : uint64_t)
 {
     read(timestamp: uint64_t, addr : intptr_t);
     write(timestamp: uint64_t, addr : intptr_t);
@@ -19,12 +19,12 @@ stream processor TEProcessor(threadid : int) : ThreadEvent(threadid, 0, 0, 0, 0,
     my_hole
     {
         int n = COUNT(*);
-        uint64_t firstts = MIN(read.timestamp, write.timestamp, atomicread.timestamp, atomicwrite.timestamp, lock.timestamp, unlock.timestamp, alloc.timestamp, free.timestamp, fork.timestamp, join.timestamp);
-        uint64_t lastts = MAX(read.timestamp, write.timestamp, atomicread.timestamp, atomicwrite.timestamp, lock.timestamp, unlock.timestamp, alloc.timestamp, free.timestamp, fork.timestamp, join.timestamp);
+        uint64_t firstts = MIN(read.timestamp, write.timestamp, read_n.timestamp, write_n.timestamp, atomicread.timestamp, atomicwrite.timestamp, lock.timestamp, unlock.timestamp, alloc.timestamp, free.timestamp, fork.timestamp, join.timestamp);
+        uint64_t lastts = MAX(read.timestamp, write.timestamp, read_n.timestamp, write_n.timestamp, atomicread.timestamp, atomicwrite.timestamp, lock.timestamp, unlock.timestamp, alloc.timestamp, free.timestamp, fork.timestamp, join.timestamp);
     }
 }
 
-buffer group Threads : ThreadEvent
+buffer group Threads : ThreadEvent order by nextts
 event source Program : ThreadEvent process using TEProcessor(0) to autodrop(@BUFSIZE,256) include in Threads
 
 stream type GlobalEvent
@@ -33,12 +33,8 @@ stream type GlobalEvent
     write(tid: int, timestamp: uint64_t, addr : intptr_t);
     read_sized(tid: int, timestamp: uint64_t, addr : intptr_t, size: size_t);
     write_sized(tid: int, timestamp: uint64_t, addr : intptr_t, size: size_t);
-    atomicread(tid: int, timestamp: uint64_t, addr : intptr_t, mode : int);
-    atomicwrite(tid: int, timestamp: uint64_t, addr : intptr_t, mode : int);
     lock(tid: int, timestamp: uint64_t, addr : intptr_t);
     unlock(tid: int, timestamp: uint64_t, addr : intptr_t);
-    alloc(tid: int, timestamp : uint64_t, addr : intptr_t, size : size_t);
-    free(tid: int, timestamp: uint64_t, addr : intptr_t);
     fork(tid: int, timestamp: uint64_t, newthreadid: int);
     join(tid: int, timestamp: uint64_t, threadid: int);
     skipstart(tid: int, timestamp : uint64_t);
@@ -70,13 +66,27 @@ $$
     fprintf(stderr, "Found %lu races\n", GetRaceCount());
 $$
 
+loopdebug
+$$
+    printf("nextts = %lu\n", nextts);
+    printf("leastts = %lu\n", leastts);
+    printf("findleast = %i\n", findleast);
+    printf("seenNone = %i\n", seenNone);
+    printf("nonecycles = %lu\n", nonecycles);
+    printf("skipcount = %lu\n", skipcount);
+    printf("dropcount = %lu\n", dropcount);
+    printf("holescount = %lu\n", holescount);
+$$
+
 arbiter : GlobalEvent
 {
-    choose T from Threads where $$ ($T.nextts; <= nextts && ($T.nextts; == nextts || $T.nonecount; < nonebarrier || $T.nonets; < nextts)) || (findleast && $T.nextts; < leastts) $$
+    choose T from Threads where $$ ($T.nextts; <= nextts && $T.nonets; < nextts) || (findleast && $T.nextts; < leastts) $$
     {
         on T : | read(ts,addr)
         $$
-            //printf("read! %lu/%lu\n",ts,nextts);
+            #ifdef DEBUGPRINT
+            printf("read(tid=%i, ts=%lu, addr=%p)\n", $T.threadid;, ts, (void*)addr);
+            #endif
             if(ts==nextts)
             {
                 $yield read(T.threadid, ts, addr);
@@ -98,6 +108,9 @@ arbiter : GlobalEvent
         $$
         on T : | write(ts,addr)
         $$
+            #ifdef DEBUGPRINT
+            printf("write(tid=%i, ts=%lu, addr=%p)\n", $T.threadid;, ts, (void*)addr);
+            #endif
             //printf("write! %lu/%lu\n",ts,nextts);
             if(ts==nextts)
             {
@@ -119,6 +132,9 @@ arbiter : GlobalEvent
         $$
         on T : | read_n(ts,addr, size)
         $$
+            #ifdef DEBUGPRINT
+            printf("read_n(tid=%i, ts=%lu, addr=%p, size=%lu)\n", $T.threadid;, ts, (void*)addr, size);
+            #endif
             if(ts==nextts)
             {
                 $yield read_sized(T.threadid, ts, addr, size);
@@ -140,7 +156,9 @@ arbiter : GlobalEvent
         $$
         on T : | write_n(ts,addr,size)
         $$
-            //printf("write! %lu/%lu\n",ts,nextts);
+            #ifdef DEBUGPRINT
+            printf("write_n(tid=%i, ts=%lu, addr=%p. size=%lu)\n", $T.threadid;, ts, (void*)addr, size);
+            #endif
             if(ts==nextts)
             {
                 $yield write_sized(T.threadid, ts, addr, size);
@@ -160,48 +178,11 @@ arbiter : GlobalEvent
             }
         $$
 
-        on T : | atomicread(ts,addr,mode)
-        $$
-            if(ts==nextts)
-            {
-                $yield atomicread(T.threadid, ts, addr,mode);
-                $drop 1 from T;
-                nextts++;
-                leastts=ULLONG_MAX;
-                findleast=0;
-            }
-            else if(ts>nextts)
-            {
-                $T.nextts;=ts;
-                leastts=min(leastts, ts);
-            }
-            else
-            {
-                $drop 1 from T;
-            }
-        $$
-        on T : | atomicwrite(ts,addr,mode)
-        $$
-            if(ts==nextts)
-            {
-                $yield atomicwrite(T.threadid, ts, addr,mode);
-                $drop 1 from T;
-                nextts++;
-                leastts=ULLONG_MAX;
-                findleast=0;
-            }
-            else if(ts>nextts)
-            {
-                $T.nextts;=ts;
-                leastts=min(leastts, ts);
-            }
-            else
-            {
-                $drop 1 from T;
-            }
-        $$
         on T : | lock(ts,addr)
         $$
+            #ifdef DEBUGPRINT
+            printf("lock(tid=%i, ts=%lu, addr=%p)\n", $T.threadid;, ts, (void*)addr);
+            #endif
             if(ts==nextts)
             {
                 $yield lock(T.threadid, ts, addr);
@@ -222,6 +203,9 @@ arbiter : GlobalEvent
         $$
         on T : | unlock(ts,addr)
         $$
+            #ifdef DEBUGPRINT
+            printf("unlock(tid=%i, ts=%lu, addr=%p)\n", $T.threadid;, ts, (void*)addr);
+            #endif
             if(ts==nextts)
             {
                 $yield unlock(T.threadid, ts, addr);
@@ -240,48 +224,11 @@ arbiter : GlobalEvent
                 $drop 1 from T;
             }
         $$
-        on T : | alloc(ts,addr,size)
-        $$
-            if(ts==nextts)
-            {
-                $yield alloc(T.threadid, ts, addr, size);
-                $drop 1 from T;
-                nextts++;
-                leastts=ULLONG_MAX;
-                findleast=0;
-            }
-            else if(ts>nextts)
-            {
-                $T.nextts;=ts;
-                leastts=min(leastts, ts);
-            }
-            else
-            {
-                $drop 1 from T;
-            }
-        $$
-        on T : | free(ts,addr)
-        $$
-            if(ts==nextts)
-            {
-                $yield free(T.threadid, ts, addr);
-                $drop 1 from T;
-                nextts++;
-                leastts=ULLONG_MAX;
-                findleast=0;
-            }
-            else if(ts>nextts)
-            {
-                $T.nextts;=ts;
-                leastts=min(leastts, ts);
-            }
-            else
-            {
-                $drop 1 from T;
-            }
-        $$
         on T : | fork(ts,tid)
         $$
+            #ifdef DEBUGPRINT
+            printf("fork(tid=%i, ts=%lu, otid=%i)\n", $T.threadid;, ts, tid);
+            #endif
             if(ts==nextts)
             {
                 $yield fork(T.threadid, ts, tid);
@@ -302,6 +249,9 @@ arbiter : GlobalEvent
         $$
         on T : | join(ts,tid)
         $$
+            #ifdef DEBUGPRINT
+            printf("join(tid=%i, ts=%lu, otid=%i)\n", $T.threadid;, ts, tid);
+            #endif
             if(ts==nextts)
             {
                 $yield join(T.threadid, ts, tid);
@@ -323,50 +273,62 @@ arbiter : GlobalEvent
         on T : | my_hole(n, mints, maxts)
         $$
             #ifdef DEBUGPRINT
-            printf("\033[36m//[a] my_hole(n=%d, mints=%lu, maxts=%lu)\033[0m\n", n, mints, maxts);
+            printf("\033[36m//[a] my_hole(n=%d, tid=%i, mints=%lu, maxts=%lu)\033[0m\n", n, $T.threadid;, mints, maxts);
             #endif
-            if(mints<=nextts&&maxts>$T.nextts;)
+            if(!$T.inhole;)
             {
-                skipcount+=n;
-                dropcount+=n;
-                $yield skipstart(T.threadid, nextts);
-                $T.nextts;=maxts;
-                leastts=maxts;
-                findleast=1; //to avoid geting stuck on just this leastts
-                if(maxts<=nextts)
+                if(mints<=nextts)
                 {
-                    $yield skipend(T.threadid, nextts);
+                    skipcount+=n;
+                    dropcount+=n;
+                    $yield skipstart(T.threadid, nextts);
+                    $T.nextts;=maxts;
+                    if(maxts<=nextts)
+                    {
+                        $yield skipend(T.threadid, nextts);
+                        $drop 1 from T;
+                        ++holescount;
+                        leastts=ULLONG_MAX;
+                    }
+                    else
+                    {
+                        $T.inhole;=1;
+                        leastts=maxts;
+                    }
+                    if(mints==nextts)
+                    {
+                        nextts++;
+                    }
+                }
+                else
+                {
+                    $T.nextts;=mints;
+                    leastts=min(leastts, mints);
+                }
+            }
+            if($T.inhole;)
+            {
+                if(maxts==nextts)
+                {
+                    $yield skipend(T.threadid, maxts);
                     $drop 1 from T;
-        	        ++holescount;
-                    leastts=ULLONG_MAX;
-                    findleast=0;
-                }
-                if(mints==nextts)
-                {
+                    ++holescount;
                     nextts++;
+                    leastts=ULLONG_MAX;
+                    $T.inhole;=0;
                 }
-            }
-            else if(maxts==nextts)
-            {
-                $yield skipend(T.threadid, maxts);
-                $drop 1 from T;
-                ++holescount;
-                nextts++;
-                leastts=ULLONG_MAX;
-                findleast=0;
-            }
-            else if($T.nextts;<maxts)
-            {
-                $T.nextts;=mints;
-                leastts=min(leastts, mints);
-            }
-            else
-            {
-                leastts=min(leastts, maxts);
+                else
+                {
+                    $T.nextts;=maxts;
+                    leastts=min(leastts, maxts);
+                }
             }
         $$
         on T : done
         $$
+            #ifdef DEBUGPRINT
+            printf("done(tid=%i)\n", $T.threadid;);
+            #endif
             $yield done_(T.threadid, nextts);
             $remove T from Threads;
         $$
@@ -374,34 +336,39 @@ arbiter : GlobalEvent
         $$
             if(leastts!=ULONG_MAX && skipcount >= leastts - nextts)
             {
-                if($T.nonets;<nextts)
-                {
-                    $T.nonecount;=0;
-                    $T.nonets;=nextts;
-                }
-                $T.nonecount;+=1;
+                $T.nonets;=nextts;
                 seenNone=1;
             }
         $$
     }
 
+    choose T from Threads where $$ $T.nonets;>0 $$
+    {
+        on T : 1
+        $$
+            $T.nonets;=0;
+        $$
+    }
+
     always
     $$
-        if(leastts!=ULONG_MAX && (seenNone==0 || nonecycles>1000000) && skipcount >= leastts - nextts)
-        {
-            skipcount-=(leastts-nextts);
-            nextts=leastts;
-            nonebarrier=1;
-            nonecycles=0;
-        }
-        else if(leastts==ULONG_MAX)
+        if(!findleast)
         {
             findleast=1;
         }
         else
-        {                
-            nonebarrier++;
-            nonecycles++;
+        {
+            findleast=0;
+            if(leastts!=ULONG_MAX && (seenNone==0 || nonecycles>1000000) && skipcount >= leastts - nextts)
+            {
+                skipcount-=(leastts-nextts);
+                nextts=leastts;
+                nonecycles=0;
+            }
+            else
+            {                
+                nonecycles++;
+            }
         }
         seenNone=0;
     $$
@@ -410,115 +377,50 @@ arbiter : GlobalEvent
 monitor {
     on read(tid, timestamp, addr) where $$ true $$
     $$
-        #ifdef DEBUGPRINT
-        printf("read(tid=%lu, ts=%lu, addr=%p)\n", tid, timestamp, addr);
-        #endif
         monitor_handle_read(tid, timestamp, addr);
     $$
     on read_sized(tid, timestamp, addr, size) where $$ true $$
     $$
-        #ifdef DEBUGPRINT
-        printf("read_sized(tid=%lu, ts=%lu, addr=%p, size=%lu)\n", tid, timestamp, addr, size);
-        #endif
         monitor_handle_read_many(tid, timestamp, addr, size);
     $$
 
     on write(tid, timestamp, addr) where $$ true $$
     $$
-        #ifdef DEBUGPRINT
-        printf("write(tid=%lu, ts=%lu, addr=%p)\n", tid, timestamp, addr);
-        #endif
         monitor_handle_write(tid, timestamp, addr);
     $$
     on write_sized(tid, timestamp, addr, size) where $$ true $$
     $$
-        #ifdef DEBUGPRINT
-        printf("write_sized(tid=%lu, ts=%lu, addr=%li, size=%lu)\n", tid, timestamp, addr,size);
-        #endif
         monitor_handle_write_many(tid, timestamp, addr, size);
-    $$
-
-    on atomicread(tid, timestamp, addr , mode) where $$ true $$
-    $$
-        #ifdef DEBUGPRINT
-        printf("atomicread(tid=%lu, ts=%lu, addr=%p)\n", tid, timestamp, addr);
-        #endif
-    $$
-
-    on atomicwrite(tid, timestamp, addr , mode) where $$ true $$
-    $$
-        #ifdef DEBUGPRINT
-        printf("atomicwrite(tid=%lu, ts=%lu, addr=%p)\n", tid, timestamp, addr);
-        #endif
     $$
 
     on lock(tid, timestamp, addr) where $$ true $$
     $$
-        #ifdef DEBUGPRINT
-        printf("lock(tid=%lu, ts=%lu, addr=%p)\n", tid, timestamp, addr);
-        #endif
         monitor_handle_lock(tid, timestamp, addr);
     $$
 
     on unlock(tid, timestamp, addr) where $$ true $$
     $$
-        #ifdef DEBUGPRINT
-        printf("unlock(tid=%lu, ts=%lu, addr=%p)\n", tid, timestamp, addr);
-        #endif
         monitor_handle_unlock(tid, timestamp, addr);
     $$
 
-
-
-
-
-    on alloc(tid, timestamp , addr, size) where $$ true $$
-    $$ 
-        #ifdef DEBUGPRINT
-        printf("ALLOC\n");
-        #endif
-        monitor_handle_alloc(tid, timestamp, addr, size);
-    $$
-    on free(tid, timestamp, addr ) where $$ true $$
-    $$ 
-        #ifdef DEBUGPRINT
-        printf("FREE\n");
-        #endif
-        monitor_handle_free(tid, timestamp, addr);
-    $$
     on fork(tid, timestamp, newthreadid) where $$ true $$
     $$
-        #ifdef DEBUGPRINT
-        printf("fork(tid=%lu, ts=%lu, newtid=%lu\n", tid, timestamp, newthreadid);
-        #endif
         monitor_handle_fork(tid, timestamp, newthreadid);
     $$
     on join(tid, timestamp, threadid) where $$ true $$
     $$
-        #ifdef DEBUGPRINT
-        printf("join(tid=%lu, ts=%lu, jointid=%lu\n", tid, timestamp, threadid);
-        #endif
         monitor_handle_join(tid, timestamp, threadid);
     $$
     on skipstart(tid, timestamp) where $$ true $$
     $$
-        #ifdef DEBUGPRINT
-        printf("skipstart(tid=%lu, ts=%lu)\n", tid, timestamp);
-        #endif
         monitor_handle_skip_start(tid, timestamp);
     $$
     on skipend(tid, timestamp) where $$ true $$
     $$
-        #ifdef DEBUGPRINT
-        printf("skipend(tid=%lu, ts=%lu)\n", tid, timestamp);
-        #endif
         monitor_handle_skip_end(tid, timestamp);
     $$
     on done_(tid, timestamp) where $$ true $$
     $$
-        #ifdef DEBUGPRINT
-        printf("DONE\n");
-        #endif
         monitor_handle_done(tid, timestamp);
     $$
 
