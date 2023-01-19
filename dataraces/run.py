@@ -15,7 +15,7 @@ import config
 
 DIR = abspath(dirname(sys.argv[0]))
 TIMEOUT = 5
-REPEAT_NUM = 3
+REPEAT_NUM = 1
 CSVFILE="results.csv"
 
 opt = "opt"
