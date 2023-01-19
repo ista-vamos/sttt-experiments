@@ -5,7 +5,7 @@ from subprocess import run, Popen, PIPE, DEVNULL, TimeoutExpired
 from os.path import dirname, abspath, basename, isfile
 
 from signal import SIGKILL, SIGTERM
-from os import killpg, setpgid
+from os import killpg, setpgid, environ
 
 
 from randomharness import gen_harness
@@ -14,8 +14,10 @@ sys.path.append(abspath(f"{dirname(__file__)}/.."))
 import config
 
 DIR = abspath(dirname(sys.argv[0]))
-TIMEOUT = 5
-REPEAT_NUM = 1
+env_TIMEOUT = environ.get("DATARACES_TIMEOUT")
+TIMEOUT = 5 if env_TIMEOUT is None else int(env_TIMEOUT)
+env_REPEAT = environ.get("DATARACES_REPEAT_RUN")
+REPEAT_NUM = 3 if env_REPEAT is None else int(env_REPEAT)
 CSVFILE="results.csv"
 
 opt = "opt"

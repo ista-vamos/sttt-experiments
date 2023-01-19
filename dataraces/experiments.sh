@@ -9,6 +9,8 @@ rm -f results-*.csv
 
 source ../setup.sh
 
+export DATARACES_REPEAT_RUN
+
 # some benchmark contain assertions that can be violated,
 # do not dump core file in such cases
 ulimit -c 0
