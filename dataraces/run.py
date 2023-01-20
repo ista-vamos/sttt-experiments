@@ -94,11 +94,14 @@ def compile_file(infile):
 def run_once():
     result = {}
 
+    def set_pgroup():
+        setpgid(0, 0)
+
     # ---- run TSAN
     result.setdefault("tsan", {})["races"] = 0
 
     try:
-        proc = Popen([timecmd, "./a.tsan.out"], stderr=PIPE, stdout=DEVNULL)
+        proc = Popen([timecmd, "./a.tsan.out"], stderr=PIPE, stdout=DEVNULL, preexec_fn=set_pgroup)
         _, err = proc.communicate(timeout=TIMEOUT)
         for line in err.splitlines():
             if b"WARNING: ThreadSanitizer: data race" in line:
@@ -113,7 +116,9 @@ def run_once():
                 )
     except TimeoutExpired:
         result["tsan"]["races"] = "TO"
-        proc.kill()
+        if proc.poll() is None:
+            killpg(proc.pid, SIGTERM)
+            killpg(proc.pid, SIGKILL)
 
     # --- run HELGRIND
     result.setdefault("helgrind", {})["races"] = 0
@@ -122,6 +127,7 @@ def run_once():
             [timecmd, "valgrind", "--tool=helgrind", "./a.helgrind.out"],
             stderr=PIPE,
             stdout=DEVNULL,
+            preexec_fn=set_pgroup
         )
         _, err = proc.communicate(timeout=TIMEOUT)
         for line in err.splitlines():
@@ -137,12 +143,12 @@ def run_once():
                 )
     except TimeoutExpired:
         result["helgrind"]["races"] = "TO"
-        proc.kill()
+        if proc.poll() is None:
+            killpg(proc.pid, SIGTERM)
+            killpg(proc.pid, SIGKILL)
 
     # --- run VAMOS
     result.setdefault("vamos", {})["races"] = 0
-    def set_pgroup():
-        setpgid(0, 0)
     try:
         cmd(["rm", "-f", "/dev/shm/vrd*"])
         proc = Popen([timecmd, "./a.vamos.out"],
@@ -184,8 +190,6 @@ def run_once():
         if mon.poll() is None:
             killpg(mon.pid, SIGTERM)
             killpg(mon.pid, SIGKILL)
-       #proc.kill()
-       #mon.kill()
 
     # the output is:
     # benchmark,
@@ -241,7 +245,7 @@ def run_rep(infile, csvfile):
         if i > 2 * REPEAT_NUM:
             raise RuntimeError("Failed measuring")
         result = run_once()
-        print("RESULT", basename(infile), ",".join((str(r) for r in result)))
+        print("\033[0;33mRESULT", basename(infile), ",".join((str(r) for r in result)), "\033[0m")
         if csvstream:
             print(basename(infile),",", ",".join((str(r) for r in result)), file=csvstream)
 
