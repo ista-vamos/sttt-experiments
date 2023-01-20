@@ -43,7 +43,7 @@ for NUM in data.keys():
     S = {}
     for arbsize, tmp in data0[1].items():
         tmp = tmp.loc[tmp.err_freq != 0]
-        S[int(arbsize)] = ((tmp.err_found - tmp.err_gen))
+        S[int(arbsize)] = (100*(tmp.err_found - tmp.err_gen)/tmp.err_gen)
     sorted_arbsizes = sorted(list(S.keys()))
     df = pd.DataFrame(S, columns=sorted_arbsizes)
 
@@ -51,7 +51,7 @@ for NUM in data.keys():
     ST = {}
     for arbsize, tmp in dataT0[1].items():
         tmp = tmp.loc[tmp.err_freq == 10]
-        ST[int(arbsize)] = ((tmp.err_found - tmp.err_gen))
+        ST[int(arbsize)] = (100*(tmp.err_found - tmp.err_gen)/tmp.err_gen)
     sorted_arbsizes2 = sorted(list(S.keys()))
     assert sorted_arbsizes == sorted_arbsizes2, (sorted_arbsizes, sorted_arbsizes2)
     dfT = pd.DataFrame(ST, columns=sorted_arbsizes)
@@ -75,7 +75,7 @@ for NUM in data.keys():
                         capprops=dict(linewidth=3),
                          medianprops=dict(linewidth=3))
     vam.set_xlabel('Arbiter buffer size', labelpad=15)
-    vam.set_ylabel('Δ in detected errors', labelpad=15)
+    vam.set_ylabel('Δ in detected errors [%]', labelpad=15)
     tes.set_xlabel('Arbiter buffer size', labelpad=15)
     tes.set_ylabel("")
 
