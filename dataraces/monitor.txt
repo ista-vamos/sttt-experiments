@@ -80,7 +80,7 @@ $$
 
 arbiter : GlobalEvent
 {
-    choose T from Threads where $$ ($T.nextts; <= nextts && $T.nonets; < nextts) || (findleast && $T.nextts; < leastts) $$
+    choose first 9999 T from Threads where $$ ($T.nextts; <= nextts && $T.nonets; < nextts) || (findleast && $T.nextts; < leastts) $$
     {
         on T : | read(ts,addr)
         $$
@@ -329,24 +329,29 @@ arbiter : GlobalEvent
             #ifdef DEBUGPRINT
             printf("done(tid=%i)\n", $T.threadid;);
             #endif
+            if($T.nonets;>0)
+            {
+                seenNone--;
+            }
             $yield done_(T.threadid, nextts);
             $remove T from Threads;
         $$
-        on T : nothing
+        on T : nothing where $$ (!findleast) || $T.nonets;<nextts $$
         $$
-            if(leastts!=ULONG_MAX && skipcount >= leastts - nextts)
+            if($T.nonets;==0)
             {
-                $T.nonets;=nextts;
-                seenNone=1;
+                seenNone++;
             }
+            $T.nonets;=nextts;
         $$
     }
 
-    choose T from Threads where $$ $T.nonets;>0 $$
+    choose first 9999 T from Threads where $$ $T.nonets;>0 $$
     {
         on T : 1
         $$
             $T.nonets;=0;
+            seenNone--;
         $$
     }
 
@@ -370,7 +375,6 @@ arbiter : GlobalEvent
                 nonecycles++;
             }
         }
-        seenNone=0;
     $$
 }
 
