@@ -15,7 +15,7 @@ import config
 
 DIR = abspath(dirname(sys.argv[0]))
 env_TIMEOUT = environ.get("DATARACES_TIMEOUT")
-TIMEOUT = 5 if env_TIMEOUT is None else int(env_TIMEOUT)
+TIMEOUT = 20 if env_TIMEOUT is None else int(env_TIMEOUT)
 env_REPEAT = environ.get("DATARACES_REPEAT_RUN")
 REPEAT_NUM = 3 if env_REPEAT is None else int(env_REPEAT)
 CSVFILE="results.csv"
