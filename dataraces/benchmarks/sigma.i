@@ -1123,8 +1123,8 @@ int main()
  pthread_t *t;
  t = (pthread_t *)malloc(sizeof(pthread_t) * SIGMA);
  array = (int *)malloc(sizeof(int) * SIGMA);
- assume_abort_if_not(t);
- assume_abort_if_not(array);
+ assume_abort_if_not(t != 0);
+ assume_abort_if_not(array != 0);
  for (tid=0; tid<SIGMA; tid++) {
   array_index++;
   pthread_create(&t[tid], 0, thread, 0);

@@ -1,0 +1,9 @@
+*.bc
+Makefile.config
+setup-vars.sh
+CMakeConfig.txt
+CMakeFiles/
+plots/*.pdf
+dataraces/*.out
+config.py
+*.csv
