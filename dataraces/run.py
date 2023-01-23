@@ -40,11 +40,12 @@ def parse_time(tm):
 
 
 def compile_file(infile):
-    harness = f"{DIR}/harness.tmp.c"
-
-    # generate harness
-    with open(harness, "w") as out:
-        gen_harness(out, 1024)
+    harness = environ.get("DATARACES_HARNESS")
+    if harness is None:
+        harness = f"{DIR}/harness.tmp.c"
+        # generate harness
+        with open(harness, "w") as out:
+            gen_harness(out, 1024)
 
     # compile TSAN
     cmd(
