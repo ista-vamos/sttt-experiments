@@ -53,7 +53,7 @@ data.loc[data["tsan-races"].str.contains("TO"), "tsan-time"] = timeout
 data.loc[data["hel-races"].str.contains("TO"), "hel-time"] = timeout
 data.loc[data["vamos-races"].str.contains("TO"), "vamos-time"] = timeout
 
-plt.rcParams.update({'font.size': 14})
+plt.rcParams.update({'font.size': 20})
 fig = plt.figure(figsize=(4,4))
 fig.tight_layout()
 s = plt.scatter(data["tsan-time"], data["vamos-time"], color="DarkRed", marker="x",  alpha=.5)
@@ -64,16 +64,17 @@ plt.plot([timeout, timeout], [0, timeout], color="gray", linestyle="dashed")
 
 plt.xlim(0, lim)
 plt.ylim(0, lim)
-plt.xticks([x/10 for x in range(0, int(10*timeout), 4)])
-plt.yticks([x/10 for x in range(0, int(10*timeout), 4)])
+plt.xticks([x/10 for x in range(0, int(10*timeout), 10)])
+plt.yticks([x/10 for x in range(0, int(10*timeout), 10)])
 # plt.xscale("log")
 # plt.yscale("log")
 #plt.grid(ls='--')
-leg = plt.legend(["TSan vs Vamos", "Helgrind vs Vamos", "Timeout (5s)"],
+#leg = plt.legend(["vs TSan", "vs Helgrind", "TO (5s)"],
+                 #fontsize=14
                  #loc="upper right",
                  # loc="center",
                  #bbox_to_anchor=(0.93, 0.93)
-                 )
+#                 )
 if not os.environ.get("NOCAP"):
     plt.title("Comparing running wall-time of Vamos vs TSan and Helgrind")
 plt.ylabel("VAMOS time [s]")
@@ -98,7 +99,7 @@ s = plt.scatter(mem["hel-mem"], mem["vamos-mem"], color="DarkGreen", marker="x",
 lim = max(max(mem["tsan-mem"]), max(mem["hel-mem"]), max(mem["vamos-mem"]))
 plt.xlim(0, lim)
 plt.ylim(0,lim)
-plt.legend(["TSan vs Vamos", "Helgrind vs Vamos"])
+#plt.legend(["vs TSan", "vs Helgrind"])
 # gca = plt.gca()
 # gca.set_aspect('equal')
 plt.ylabel("VAMOS memory [MB]")
@@ -122,8 +123,26 @@ fp = len(races.loc[(races["vamos-races"] > 0)  & (races["tsan-races"] == 0)]) / 
 fn = len(races.loc[(races["vamos-races"] == 0) & (races["tsan-races"] > 0)])  / tot
 verdicts = [tp, tn, fp, fn]
 labels = ["true positive", "true negative", "false positive", "false negative"]
-print(labels)
-print(verdicts)
+table=\
+f"""
+\\begin{{tabular}}{{l >{{\\hspace{{2pt}}}}l >{{\hspace{{1em}}}} r}}
+\\toprule
+\\multicolumn{{2}}{{c}}{{\\emph{{Verdict}}}} & \\multicolumn{{1}}{{c}}{{\\#}}\\\\
+\\midrule
+\\multirow{{2}}{{*}}{{race}}   & correct & {100*tp:.2f}\\% \\\\
+                               & wrong   & {100*fp:.2f}\\% \\\\
+\\midrule
+\\multirow{{2}}{{*}}{{no race}} & correct & {100*tn:.2f}\\% \\\\
+                               & wrong   & {100*fn:.2f}\\% \\\\
+\\midrule
+total                          &         & {int(tot)}\\\\
+\\bottomrule
+\\end{{tabular}}
+"""
+
+print(table)
+with open("dataraces_correctness.tex", "w") as out:
+    print(table, file=out)
 
 
 # plotting data on chart
@@ -131,7 +150,7 @@ pie = plt.barh(labels, verdicts)
 if not os.environ.get("NOCAP"):
     plt.title("The correctness of verdicts (taking TSan as the base line)")
 plt.subplots_adjust(wspace=0.03, hspace=0)
-plt.savefig("dataraces_correctenss.pdf", bbox_inches='tight', dpi=300)
+plt.savefig("dataraces_correctness.pdf", bbox_inches='tight', dpi=300)
 
 
 diff = pd.DataFrame()

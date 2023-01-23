@@ -60,6 +60,7 @@ dataraces-original: outdir
 	-cp dataraces_errors.pdf $(OUTDIR)paper_dataraces_errors.pdf
 	-cp dataraces_memory.pdf $(OUTDIR)paper_dataraces_memory.pdf
 	-cp dataraces_times.pdf $(OUTDIR)paper_dataraces_times.pdf
+	-cp dataraces_correctness.tex $(OUTDIR)paper_dataraces_correctness.tex
 
 
 ######################################################################
@@ -103,6 +104,7 @@ dataraces: outdir
 	-cp dataraces_errors.pdf $(OUTDIR)
 	-cp dataraces_memory.pdf $(OUTDIR)
 	-cp dataraces_times.pdf $(OUTDIR)
+	-cp dataraces_correctness.tex $(OUTDIR)
 
 clean:
 	-rm *.pdf
