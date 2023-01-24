@@ -49,7 +49,7 @@ RUN git clone --depth=1 https://github.com/ista-vamos/vamos -b main
 #compile VAMOS
 WORKDIR /opt/vamos
 COPY --from=dynamorio /opt/dynamorio/build /opt/dynamorio/build
-RUN make -j4 DynamoRIO_DIR=/opt/dynamorio/build/cmake
+RUN make -j2 CC=clang CXX=clang++ BUILD_TYPE=Release DynamoRIO_DIR=/opt/dynamorio/build/cmake
 # copy and setup the experiments
 COPY . /opt/vamos/fase23-experiments
 RUN make fase23-experiments
