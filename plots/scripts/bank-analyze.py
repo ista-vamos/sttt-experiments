@@ -56,6 +56,7 @@ for NUM in data.keys():
 
     dataT0 = dataT.get(NUM)
     if dataT0 is None:
+        print(f"!!! Results for TeSSLa are missing !!!")
         continue
 
     ST = {}
