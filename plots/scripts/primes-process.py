@@ -39,7 +39,7 @@ def get_errors_file(
                 for drop_size in drop_sizes:
                     try:
                         file = open(
-                            f"{sys.argv[1]}times-{buff_size}-{arbiter_buff}-{count_primes}.csv",
+                            f"{sys.argv[1]}/times-{buff_size}-{arbiter_buff}-{count_primes}.csv",
                             "r",
                         )
                         lines = file.readlines()
@@ -51,7 +51,8 @@ def get_errors_file(
                                     f"{arbiter_buff},{get_percentage(parts[errors], count_primes)*GENERATED_ERRORS},{count_primes}\n"
                                 )
                         file.close()
-                    except FileNotFoundError:
+                    except FileNotFoundError as e:
+                        print(e)
                         pass
 
     output_file.close()
@@ -87,7 +88,7 @@ def get_times_file(
                 for drop_size in drop_sizes:
                     try:
                         file = open(
-                            f"{sys.argv[1]}times-{buff_size}-{arbiter_buff}-{count_primes}.csv",
+                            f"{sys.argv[1]}/times-{buff_size}-{arbiter_buff}-{count_primes}.csv",
                             "r",
                         )
 
@@ -120,7 +121,8 @@ def get_times_file(
                                         f"{arbiter_buff},{count_primes},{env_name},{parts[1]},{parts[2]},{buff_size}\n"
                                     )
                         file.close()
-                    except FileNotFoundError:
+                    except FileNotFoundError as e:
+                        print(e)
                         pass
 
     output_file.close()
