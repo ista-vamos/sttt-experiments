@@ -3,9 +3,8 @@ REPEAT=10   #
 SCALABILITY_NUM=10000000
 PRIMES_10000="no"
 BANK_NUM=100000
-DATARACES_HARNESS_NUM=3
-DATARACES_REPEAT_RUN=5
-DATARACES_SHORT="no"
+DATARACES_REPEAT_RUN=3
+DATARACES_NONDETS="no"
 
 
 # COMMENT OUT/REMOVE THE FOLLOWING LINES FOR FULL EXPERIMENTS
@@ -14,7 +13,11 @@ REPEAT=1                # how many time repeat each experiment
 SCALABILITY_NUM=10000   # how many events emit in scalability experiments
 PRIMES_10000="yes"      # run primes experiments with 10000 only
 BANK_NUM=10000          # the (approximate) number of generated commands
-DATARACES_HARNESS_NUM=1 # how many harnesses use for each datarace test
 DATARACES_REPEAT_RUN=1  # how many times run a single binary
-#DATARACES_SHORT="yes"   # run only on a subset of benchmarks
+# the artifact includes more benchmarks for dataraces than that are in the paper.
+# The extra benchmarks are other benchmarks from SV-COMP that always terminate
+# but that contain data non-determinism (nondeterministic inputs). For those benchmarks,
+# the result depends on the inputs, so it is not sure whether a wrong answer is caused
+# by the analysis or by a badly chosen input
+DATARACES_NONDETS="no"  # run only on deterministic benchmarks
 
