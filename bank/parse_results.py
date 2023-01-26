@@ -11,6 +11,9 @@ with open(infile, 'r') as f:
         if "in_holes" in line:
             parts = line.split()
             in_holes, out_holes = int(parts[1][:-1]), int(parts[3])
+        if "in_dropped" in line:
+            parts = line.split()
+            in_drop, out_drop = int(parts[1][:-1]), int(parts[3])
         elif "Errors found" in line:
             parts = line.split()
             errors = int(parts[2])
@@ -21,4 +24,4 @@ with open(infile, 'r') as f:
             parts = line.split()
             time = float(parts[1])
 
-print(",".join(map(str, [ERR_FREQ, errors_generated, errors, time, in_holes, out_holes])))
+print(",".join(map(str, [ERR_FREQ, errors_generated, errors, time, in_holes, out_holes, in_drop, out_drop])))

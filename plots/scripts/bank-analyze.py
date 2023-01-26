@@ -23,7 +23,7 @@ def read_data(csvfiles):
     for cf in csvfiles:
         shmbufsize, arbbufsize, num = get_params(cf)
         stats = pd.read_csv(cf, names=['err_freq', 'err_gen', 'err_found', 'time', 'holes_in',
-                                       'holes_out', 'mon_utime', 'mon_systime', 'mon_walltime'])
+                                       'holes_out', "drop_in", "drop_out", 'mon_utime', 'mon_systime', 'mon_walltime'])
         df = data.setdefault(num, {}).setdefault(shmbufsize, {}).setdefault(arbbufsize, pd.DataFrame())
         data[num][shmbufsize][arbbufsize] = pd.concat([df, stats], ignore_index=True)
     return data
@@ -40,6 +40,13 @@ dataT = read_data((f"{sys.argv[2]}/{f}" for f in os.listdir(os.curdir + f"/{sys.
 
 for NUM in data.keys():
     data0 = data[NUM]
+    print("-"*50)
+    for shmsize, tmp in data0.items():
+        for arbsize, D in tmp.items():
+            print(f"NUM: {NUM}, SHM size: {shmsize}, arbiter size: {arbsize}")
+            print(f"  avg holes-in %: {(100*D['holes_in']/NUM).mean()}, avg holes-out %: {(100*D['holes_out']/NUM).mean()}")
+            print(f"  avg holes-in %: {(100*D['drop_in']/NUM).mean()}, avg holes-out %: {(100*D['drop_out']/NUM).mean()}")
+    print("-"*50)
     S = {}
     for arbsize, tmp in data0[1].items():
         tmp = tmp.loc[tmp.err_freq != 0]
