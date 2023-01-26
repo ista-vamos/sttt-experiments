@@ -5,3 +5,4 @@ PRIMES_10000="no"
 BANK_NUM=100000
 DATARACES_REPEAT_RUN=5
 DATARACES_NONDETS="no"
+DATARACES_TIMEOUT=20    # timeout for a single benchmark (seconds)

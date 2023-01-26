@@ -12,6 +12,7 @@ source ../setup.sh
 # `DATARACES_REPEAT_RUN*REPEAT` times.
 
 export DATARACES_REPEAT_RUN
+export DATARACES_TIMEOUT
 
 # Always use the same harness for reproducibility.
 # Comment this out if you want to use random harnesses
@@ -21,6 +22,11 @@ export DATARACES_HARNESS="$DIR/harness.c"
 # some benchmark contain assertions that can be violated,
 # do not dump core file in such cases
 ulimit -c 0
+
+LOG="$DIR/log.txt"
+rm -f $LOG
+
+echo "Output of compilation, etc. is in $LOG"
 
 for I in `seq 1 $REPEAT`; do
 	if [ "$DATARACES_NONDETS" = "yes" ]; then

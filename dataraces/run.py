@@ -28,10 +28,23 @@ link = "llvm-link"
 # 0inputs+0outputs (0major+1946minor)pagefaults 0swaps
 timecmd = "/bin/time"
 
+env_LOG = environ.get("LOG")
+logpath = env_LOG or f"{DIR}/log.txt"
+logfile = None
 
-def cmd(args):
-    print("> ", " ".join(args))
-    run(args, check=True)
+def cmd(args, quiet=True, quiet_cmd=False):
+    if not quiet_cmd:
+        print("> ", " ".join(args))
+    if quiet:
+        global logfile
+        if logfile is None:
+            logfile = open(logpath, "a")
+        print("="*70, file=logfile)
+        print("> ", " ".join(args), file=logfile)
+        run(args, check=True, stdout=logfile, stderr=logfile)
+        print("="*70, file=logfile)
+    else:
+        run(args, check=True)
 
 def parse_time(tm):
     parts = tm.split(":")
@@ -153,7 +166,7 @@ def run_once():
     # --- run VAMOS
     result.setdefault("vamos", {})["races"] = 0
     try:
-        cmd(["rm", "-f", "/dev/shm/vrd*"])
+        cmd(["rm", "-f", "/dev/shm/vrd*"], quiet_cmd=True)
         proc = Popen([timecmd, "./a.vamos.out"],
                      stderr=PIPE, stdout=DEVNULL, preexec_fn=set_pgroup)
         mon  = Popen([timecmd, "./monitor", "Program:generic:/vrd"],
@@ -248,7 +261,12 @@ def run_rep(infile, csvfile):
         if i > 2 * REPEAT_NUM:
             raise RuntimeError("Failed measuring")
         result = run_once()
-        print("\033[0;33mRESULT", basename(infile), ",".join((str(r) for r in result)), "\033[0m")
+        #print("\033[0;33mRESULT", basename(infile), ",".join((str(r) for r in result)), "\033[0m")
+        print("\033[0;32mraces/time/mem:", basename(infile),
+              f"tsan: ({result[0]}, {result[3]}, {result[4]})",
+              f"helg: ({result[5]}, {result[8]}, {result[9]})",
+              f"vams: ({result[10]}, {result[13]}, {result[14]}+{result[15]})",
+              "\033[0m")
         if csvstream:
             print(basename(infile),",", ",".join((str(r) for r in result)), file=csvstream)
 
@@ -271,6 +289,10 @@ def main(argv):
         exit(1)
 
     run_rep(argv[1], argv[2] if len(argv) > 2 else None)
+
+    global logfile
+    if logfile:
+        logfile.close()
 
 if __name__ == "__main__":
     main(sys.argv)

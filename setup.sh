@@ -5,6 +5,7 @@ PRIMES_10000="no"
 BANK_NUM=100000
 DATARACES_REPEAT_RUN=3
 DATARACES_NONDETS="no"
+DATARACES_TIMEOUT=20
 
 
 # COMMENT OUT/REMOVE THE FOLLOWING LINES FOR FULL EXPERIMENTS
@@ -20,4 +21,5 @@ DATARACES_REPEAT_RUN=1  # how many times run a single binary
 # the result depends on the inputs, so it is not sure whether a wrong answer is caused
 # by the analysis or by a badly chosen input
 DATARACES_NONDETS="no"  # run only on deterministic benchmarks
+DATARACES_TIMEOUT=5     # timeout for a single benchmark (seconds)
 
