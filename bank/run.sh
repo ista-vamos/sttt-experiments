@@ -8,7 +8,7 @@ test -z $BANK_NUM && BANK_NUM=100000
 export PYTHON_OPTIMIZE=1
 #export PYTHONDONTWRITEBYTECODE=1
 
-for ARBITER_BUFSIZE in 4 16 32 64 128 256; do
+for ARBITER_BUFSIZE in 4 16 32 64 128 256 512 1024 2048; do
     echo "** SHM BUFSIZE: 1000 elems, ARBITER_BUFSIZE: $ARBITER_BUFSIZE **"
     echo " - Generating the monitor"
     ./genmon.py bankmonitor.vl.in $ARBITER_BUFSIZE
