@@ -56,11 +56,9 @@ bank-original: outdir
 
 dataraces-original: outdir
 	python3 scripts/dataraces-analyze.py $(ORIGINALDATA)/dataraces/results.csv
-	-cp dataraces_correctness.pdf $(OUTDIR)paper_dataraces_correctness.pdf
-	-cp dataraces_errors.pdf $(OUTDIR)paper_dataraces_errors.pdf
-	-cp dataraces_memory.pdf $(OUTDIR)paper_dataraces_memory.pdf
-	-cp dataraces_times.pdf $(OUTDIR)paper_dataraces_times.pdf
-	-cp dataraces_correctness.tex $(OUTDIR)paper_dataraces_correctness.tex
+	-cp dataraces.pdf $(OUTDIR)/paper_dataraces.pdf
+	-cp dataraces_memory.pdf $(OUTDIR)/paper_dataraces_memory.pdf
+	-cp dataraces_times.pdf $(OUTDIR)/paper_dataraces_times.pdf
 
 
 ######################################################################
@@ -100,11 +98,9 @@ bank:
 
 dataraces: outdir
 	python3 scripts/dataraces-analyze.py $(EXPERIMENTSDIR)/dataraces/results.csv
-	-cp dataraces_correctness.pdf $(OUTDIR)
-	-cp dataraces_errors.pdf $(OUTDIR)
+	-cp dataraces.pdf $(OUTDIR)
 	-cp dataraces_memory.pdf $(OUTDIR)
 	-cp dataraces_times.pdf $(OUTDIR)
-	-cp dataraces_correctness.tex $(OUTDIR)
 
 clean:
 	-rm *.pdf
