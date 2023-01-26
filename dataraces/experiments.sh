@@ -4,12 +4,14 @@ set -e
 
 REP=3
 
-cd $(dirname $0)
+DIR=$(dirname $0)
+cd $DIR
 rm -f results-*.csv
 
 source ../setup.sh
 
 export DATARACES_REPEAT_RUN
+export DATARACES_HARNESS="$DIR/harness.c"
 
 # some benchmark contain assertions that can be violated,
 # do not dump core file in such cases
