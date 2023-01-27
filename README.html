@@ -12,35 +12,60 @@ scripts to run experiments and present the results.</p>
 modern (~past 5? years) x86-64 processor with multiple cores (ideally at
 least 6 cores).</p>
 <h2 id="using-a-bundled-docker-image">Using a bundled docker image</h2>
-<p>[TBD]</p>
+<p>You can load the bundled docker image with <code>docker load</code>
+command and run it:</p>
+<pre><code>docker load &lt; vamos-fase2023.tar.gz
+docker run -ti -v &quot;$(pwd)/results&quot;:/opt/results vamos:fase</code></pre>
+<p>Note that the image was build for x86 architectures. If your
+architecture is different, you either need to specify
+<code>--platform</code> when running/creating the container to emulate
+your architecture or build the image yourself. Note that emulating the
+architecture brings non-negligible overhead and so building the image
+may be a better option.</p>
 <h2 id="building-the-artifact">Building the artifact</h2>
 <p>To build and run the artifact run this command from the top-level
 directory:</p>
 <pre><code>docker build . -t vamos:fase</code></pre>
 <p>If you are on a new enough Linux system, you may use this command to
 get faster builds:</p>
-<pre><code>DOCKER_BUILDKIT=1 docker build . -f Dockerfile.buildkit -t vamos:fase</code></pre>
+<pre><code>DOCKER_BUILDKIT=1 docker build . -t vamos:fase</code></pre>
+<p>The building process can take more than 10 minutes, based on the used
+machine and the speed of the internet connection.</p>
 <p>To run the built image, use:</p>
-<pre><code>docker run -ti vamos:fase</code></pre>
+<pre><code>docker run -ti -v &quot;$(pwd)/results&quot;:/opt/results vamos:fase</code></pre>
+<p>This command starts a docker container with experiments ready to run
+and gives you a shell in this container. It also creates a folder
+<code>results/</code> in the current directory to the container where
+will the results of the experiments appear. Feel free to change
+<code>$(pwd)/results</code> to a directory of your choice.</p>
 <p>Once in the docker container, continue with the test instructions
 below.</p>
 <h2 id="test-instructions">Test Instructions</h2>
-<p>We have prepared script to run two versions of experiments: short and
-full experiments. Short experiments run just a few minutes, but the
-results may slightly diverge from the results in the paper. You can run
-short experiments with:</p>
-<pre><code>./short-experiments.sh</code></pre>
-<p>Full experiments are run with</p>
-<pre><code>./full-experiments.sh</code></pre>
-<p>Full experiments can run for several hours and should reproduce
-numbers from the paper. Note that running full experiments will
-overwrite results of short experiments.</p>
-<p>Once (short or full) experiments are finished, you can generate plots
-in the PDF format as follows:</p>
-<p>[TBD]</p>
-<p>You can also generate the plots from the original data that we
-measured. The data are in [TBD] and you can generate the plots by
-[TBD].</p>
+<p>We have prepared script to run three versions of experiments: short,
+mid, and full experiments. Short experiments run just a few minutes, but
+the results may diverge from the results in the paper. Mid experiments
+run longer but still in the order of tens of minutes. Full experiments
+can run for several hours and should reproduce numbers from the paper.
+Note that running experiments will overwrite results of previous runs of
+experiments.</p>
+<p>You can run short/mid/full experiments with these scripts:</p>
+<pre><code>./short-experiments.sh
+./mid-experiments.sh
+./full-experiments.sh</code></pre>
+<p>A guide on how to run just some experiments is at the end of this
+document.</p>
+<p>Once experiments are finished, plots in the PDF format should be
+automatically generated and put in the results folder from where the
+docker was started (or in a folder of your choice if you changed the
+command). The plots are named after the figures in the paper.</p>
+<p>You can also generate the plots manually by running make in the
+<code>plots</code> directory. Moreover, you can generate the plots from
+the original data that we measured. The data are in
+<code>plots/original-data</code> and you generate the plots by</p>
+<pre><code>cd plots
+make original</code></pre>
+<p>For more details about plots, check the README.md inside
+<code>plots</code> directory.</p>
 <h2 id="running-just-some-experiments">Running just some
 experiments</h2>
 <p>To run just some experiments, you can comment out lines with

@@ -19,7 +19,18 @@ For all benchmarks to make sense, the artifact requires a reasonably modern
 
 ## Using a bundled docker image
 
-[TBD]
+You can load the bundled docker image with `docker load` command and run it:
+
+```
+docker load < vamos-fase2023.tar.gz
+docker run -ti -v "$(pwd)/results":/opt/results vamos:fase
+```
+
+Note that the image was build for x86 architectures. If your architecture is
+different, you either need to specify `--platform` when running/creating
+the container to emulate your architecture or build the image yourself.
+Note that emulating the architecture brings non-negligible overhead
+and so building the image may be a better option.
 
 ## Building the artifact
 
