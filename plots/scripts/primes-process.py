@@ -48,7 +48,7 @@ def get_errors_file(
                             parts = line.split(",")
                             if parts[0] == row_name:
                                 output_file.write(
-                                    f"{arbiter_buff},{get_percentage(parts[errors], count_primes)*GENERATED_ERRORS},{count_primes}\n"
+                                    f"{arbiter_buff},{get_percentage(parts[errors], GENERATED_ERRORS)},{count_primes}\n"
                                 )
                         file.close()
                     except FileNotFoundError as e:
