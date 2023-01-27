@@ -29,7 +29,7 @@ outdir:
 ### scalability ##############################
 scalability-original: outdir
 	python3 scripts/numbers-plot.py $(ORIGINALDATA)/scalability/numbers-8-10000000-1.csv 8
-	mv scalability_plot_8_10000000_1_processed.pdf paper_figure_3.pdf
+	mv scalability_plot_8_10000000_1_processed.pdf paper_figure_2.pdf
 	-cp paper_figure_2.pdf $(OUTDIR)
 
 
