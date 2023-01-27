@@ -14,7 +14,7 @@ source ../setup.sh
 VLCC="python3 $vamos_compiler_DIR/compiler/main.py"
 GENCC="$vamos_compiler_DIR/gen/compile.sh"
 TESSLA_JAR="$vamos_compiler_DIR/compiler/tessla-rust.jar"
-FREQ=2000000
+FREQ=10000000
 
 # compile the tessla monitor
 java -jar $TESSLA_JAR compile-rust primes.tessla -b tessla-monitor
