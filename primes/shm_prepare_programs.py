@@ -23,7 +23,7 @@ for buffsize in arbiter_buffer_sizes:
         file.close()
 
 CURRENT_PATH = os.getcwd()
-COMPILER_PATH = f"{config.vamos_compiler_DIR}/compiler/main.py"
+COMPILER_PATH = f"{config.vamos_compiler_DIR}/compiler/vamosc.py"
 
 # compile shamon programs into c programs
 for buffsize in arbiter_buffer_sizes:
