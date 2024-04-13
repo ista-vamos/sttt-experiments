@@ -109,9 +109,12 @@ arbiter : NumberPairs
             on F: Prime(n, p) | where $$ count < 10 || $F.pos; <= $S.pos; $$
             $$
                 $F.pos; = $call _process(n, p, $F.pos;, $S.pos;);;
-                if ($F; == $P[0];) {
+                if ($F; == $P[0];) 
+                {
                     left_processed ++;
-                } else {
+                } 
+                else
+                {
                     right_processed ++;
                 } 
             $$
@@ -123,11 +126,14 @@ arbiter : NumberPairs
                     count -= removed;
                 }
                 $F.pos; += n;
-                if ($F; == $P[0];) {
+                if ($F; == $P[0];) 
+                {
                     left_processed += n;
                     left_holes += 1;
                     left_drops += n;
-                } else {
+                } 
+                else 
+                {
                     right_processed += n;
                     right_holes += 1;
                     right_drops += n;

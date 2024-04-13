@@ -5,6 +5,7 @@
 #include "vamos-buffers/shmbuf/buffer.h"
 #include "vamos-buffers/shmbuf/client.h"
 #include "vamos-buffers/core/source.h"
+#include "vamos-buffers/core/event.h"
 
 typedef struct ulonglist {
     unsigned long     number;
@@ -97,7 +98,10 @@ void push_event(int n, int p) {
 		printf("Could not create event!");
 		exit(-1);
 	}
-
+    static vms_event event;
+    event.kind=VMS_EVENT_LAST_SPECIAL_KIND+1;
+    event.id++;
+	ev=vms_shm_buffer_partial_push(vmsbuf, ev, &event, sizeof(event));
 	ev=vms_shm_buffer_partial_push(vmsbuf, ev, &n, sizeof(n));
 	ev=vms_shm_buffer_partial_push(vmsbuf, ev, &p, sizeof(n));
 
