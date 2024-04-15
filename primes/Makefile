@@ -14,7 +14,7 @@ intmap.o: ${COMPILER_CFILES}/intmap.cpp
 	$(CXX) -c $< -o intmap.o
 
 prepare: primes primes-bad  compiler_utils.o intmap.o
-	python3 shm_prepare_programs.py
+	python3 gen_monitors.py
 
 prepare-tessla: primes primes-bad  compiler_utils.o intmap.o
 

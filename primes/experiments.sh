@@ -18,12 +18,11 @@ for SHM_BUFSIZE in 8; do
 				./run-c.py $SHM_BUFSIZE $ARBITER_BUFSIZE 10000
 			done
 		else
-               		for PRIMES_NUM in 10000 20000 30000 40000; do
-				for i in `seq 1 $REPEAT`; do
-					./run-c.py $SHM_BUFSIZE $ARBITER_BUFSIZE $PRIMES_NUM
-				done
-
-               		done
+        for PRIMES_NUM in 10000 20000 30000 40000; do
+			    for i in `seq 1 $REPEAT`; do
+			    	./run-c.py $SHM_BUFSIZE $ARBITER_BUFSIZE $PRIMES_NUM
+			    done
+        done
 		fi
         done
 done

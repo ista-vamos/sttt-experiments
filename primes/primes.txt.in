@@ -8,7 +8,7 @@ stream type NumberPairs
     NumberPair(i : int, n : int, m : int);
 }
 
-event source P[2] : Primes(0) process using FORWARD to autodrop(@BUFSIZE)
+event source P[2] : Primes(0) to autodrop(@BUFSIZE)
 
 buffer group Ps : Primes order by pos includes P[all]
 
@@ -28,30 +28,30 @@ $$
     
     int left_holes = 0;
     int right_holes = 0;
+$$
 
-    int process(int n, int p, int pos, int opos)
+fun _process(n : int, p : int, pos : int, opos : int) : int
+$$
+    if(pos < opos)
     {
-        if(pos < opos)
+        int oval=0;
+        if(intmap_get(&buf, n, &oval))
         {
-            int oval=0;
-            if(intmap_get(&buf, n, &oval))
-            {
-                compared++;
-                $yield NumberPair(n, oval, p);
-            }
-            int removed=intmap_remove_upto(&buf, n);
-            count -= removed;
+            compared++;
+            $yield NumberPair(n, oval, p);
         }
-        else
-        {
-            if(count<10)
-            {
-                intmap_insert(&buf, n, p);
-                count++;
-            }
-        }
-        return n+1;
+        int removed=intmap_remove_upto(&buf, n);
+        count -= removed;
     }
+    else
+    {
+        if(count<10)
+        {
+            intmap_insert(&buf, n, p);
+            count++;
+        }
+    }
+    return n+1;
 $$
 
 startup
@@ -92,13 +92,13 @@ arbiter : NumberPairs
             else if($P[0].pos;<$P[1].pos;)
             {
                 left_processed += 1;
-                $P[0].pos; = process(ln, lp, $P[0].pos;, $P[1].pos;);
+                $P[0].pos; = $call _process(ln, lp, $P[0].pos;, $P[1].pos;);;
                 $drop 1 from P[0];
             }
             else
             {
                 right_processed += 1;
-                $P[1].pos; = process(rn, rp, $P[1].pos;, $P[0].pos;);
+                $P[1].pos; = $call _process(rn, rp, $P[1].pos;, $P[0].pos;);;
                 $drop 1 from P[1];
             }
         $$
@@ -107,10 +107,13 @@ arbiter : NumberPairs
         {
             on F: Prime(n, p) | where $$ count < 10 || $F.pos; <= $S.pos; $$
             $$
-                $F.pos; = process(n, p, $F.pos;, $S.pos;);
-                if (F == EV_SOURCE_P_0) {
+                $F.pos; = $call _process(n, p, $F.pos;, $S.pos;);;
+                if ($F; == $P[0];) 
+                {
                     left_processed ++;
-                } else {
+                } 
+                else
+                {
                     right_processed ++;
                 } 
             $$
@@ -122,11 +125,14 @@ arbiter : NumberPairs
                     count -= removed;
                 }
                 $F.pos; += n;
-                if (F == EV_SOURCE_P_0) {
+                if ($F; == $P[0];) 
+                {
                     left_processed += n;
                     left_holes += 1;
                     left_drops += n;
-                } else {
+                } 
+                else 
+                {
                     right_processed += n;
                     right_holes += 1;
                     right_drops += n;

@@ -3,7 +3,6 @@ stream type Primes(pos : int)
     Prime(n : int, p : int);  
 }
 
-
 stream type NumberPairs
 {
     NumberPair(i : int, n : int, m : int);
