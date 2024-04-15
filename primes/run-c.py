@@ -54,22 +54,6 @@ lprint(f"-- Working directory is {WORKINGDIR} --")
 primes1 = rand_shm_name('primes1')
 primes2 = rand_shm_name('primes2')
 
-# lprint(f"--  Using empty monitor: {EMPTY_MONITOR_PATH} --")
-# 
-# dm_drio_consume_time_c1 = ParseTime()
-# dm_drio_consume_time_c2 = ParseTime()
-# measure("'Empty monitor C/C for primes' DynamoRIO sources",
-#         [Command(*DRIO, "-c", f"{config.vamos_sources_DIR}/src/drregex/libdrregex.so",
-#                  primes1, "Prime", "#([0-9]+): ([0-9]+)", "ii", "--",
-#                  f"{PRIMESPATH}/primes", NUM).withparser(dm_drio_consume_time_c1),
-#          Command(*DRIO, "-c", f"{config.vamos_sources_DIR}/src/drregex/libdrregex.so",
-#                  primes2, "Prime", "#([0-9]+): ([0-9]+)", "ii", "--",
-#                  f"{PRIMESPATH}/primes", NUM).withparser(dm_drio_consume_time_c2)],
-#         [Command(EMPTY_MONITOR_PATH, f"Left:drregex:{primes1}", f"Right:drregex:{primes2}",
-#                  stdout=PIPE)])
-# dm_drio_consume_time_c1.report('c-c-empty', msg="C (1) program")
-# dm_drio_consume_time_c2.report('c-c-empty', msg="C (2) program")
-
 ###############################################################################
 
 log(f"-- Removing working directory {WORKINGDIR} --")
@@ -94,7 +78,7 @@ measure("'Differential monitor C/C for primes' DynamoRIO sources",
          Command(*DRIO, "-c", f"{config.vamos_sources_DIR}/src/drregex/libdrregex.so",
                  primes2, "Prime", "#([0-9]+): ([0-9]+)", "ii", "--",
                  f"{PRIMESPATH}/primes", NUM).withparser(dm_drio_time_c2)],
-        [Command("/bin/time", "-f", "Wall-time: %e", MONITOR_PATH, f"P_0:drregex:{primes1}", f"P_1:drregex:{primes2}",
+        [Command("/bin/time", "-f", "Wall-time: %e", MONITOR_PATH, f"P1:drregex:{primes1}", f"P2:drregex:{primes2}",
                  stdout=PIPE).withparser(dm_drio_stats2)])
 dm_drio_time_c1.report('c-c-dm', msg="C (1) program")
 dm_drio_time_c2.report('c-c-dm', msg="C (2) program")
@@ -111,8 +95,8 @@ measure("'Differential monitor C/C for primes' DynamoRIO sources, 10% errors",
          Command(*DRIO, "-c", f"{config.vamos_sources_DIR}/src/drregex/libdrregex.so",
                  primes2, "Prime", "#([0-9]+): ([0-9]+)", "ii", "--",
                  f"{PRIMESPATH}/primes-bad", NUM, str(int(NUM)/10)).withparser(dm_drio_bad_time_c2)],
-         [Command("/bin/time", "-f", "Wall-time: %e", MONITOR_PATH, f"P_0:drregex:{primes1}",
-                 f"P_1:drregex:{primes2}", stdout=PIPE).withparser(dm_drio_bad_stats2)])
+         [Command("/bin/time", "-f", "Wall-time: %e", MONITOR_PATH, f"P1:drregex:{primes1}",
+                 f"P2:drregex:{primes2}", stdout=PIPE).withparser(dm_drio_bad_stats2)])
 dm_drio_bad_time_c1.report('c-c-dm-errs-good', msg="C (1) program (good)")
 dm_drio_bad_time_c2.report('c-c-dm-errs-bad', msg="C (2) program (bad)")
 dm_drio_bad_stats2.report('c-c-dm-errs-stats')
