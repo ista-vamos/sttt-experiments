@@ -2,7 +2,7 @@ include ../Makefile.config
 
 CPPFLAGS=
 CFLAGS=-g #-O3
-VLCC=python3 ${vamos_compiler_DIR}/compiler/main.py
+VLCC=python3 ${vamos_compiler_DIR}/compiler/vamosc.py
 GENCC=${vamos_compiler_DIR}/gen/compile.sh
 SHAMON_LIB=${vamos_buffers_libraries_DIR}/libvamos-buffers-lib.so  # for dependency
 

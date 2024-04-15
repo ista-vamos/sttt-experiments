@@ -21,7 +21,8 @@ RUN apt-get install -y --no-install-recommends\
 
 FROM base-git AS dynamorio
 WORKDIR /opt
-RUN git clone --depth=1 https://github.com/DynamoRIO/dynamorio &&\
+#RUN apt-get install -y --no-install-recommends patch
+RUN git clone --depth=1 https://github.com/DynamoRIO/dynamorio -b release_10.0.0 &&\
     mkdir -p dynamorio/build &&\
     cd dynamorio/build &&\
     cmake .. &&\
@@ -45,14 +46,18 @@ RUN apt-get install -y --no-install-recommends clang-14 llvm-14-dev &&\
 # clone VAMOS
 FROM llvm AS vamos
 WORKDIR /opt
-RUN git clone --depth=1 https://github.com/ista-vamos/vamos -b fase23
+RUN apt-get install -y --no-install-recommends pkg-config #libevdev-dev libinput-dev autoconf automake autotools-dev libtool
+#RUN apt-get install -y --no-install-recommends libwayland-dev weston
+RUN git clone --depth=1 https://github.com/ista-vamos/vamos -b sttt
 #compile VAMOS
 WORKDIR /opt/vamos
 COPY --from=dynamorio /opt/dynamorio/build /opt/dynamorio/build
-RUN make -j2 CC=clang CXX=clang++ BUILD_TYPE=Release DynamoRIO_DIR=/opt/dynamorio/build/cmake
+#RUN git submodule update --init --recursive
+#RUN cd vamos-sources && make -C ext wldbg
+RUN make -j2 CC=clang CXX=clang++ BUILD_TYPE=Release DynamoRIO_DIR=/opt/dynamorio/build/cmake LIBINPUT_SOURCES=OFF WLDBG_SOURCES=OFF
 # copy and setup the experiments
-COPY . /opt/vamos/fase23-experiments
-RUN make fase23-experiments
+# COPY . /opt/vamos/fase23-experiments
+RUN make fase23-experiments DynamoRIO_DIR=/opt/dynamorio/build/cmake 
 
 FROM base as prepare-artifact
 RUN pip install matplotlib==3.6.0 pandas==1.5.0 seaborn==0.12.0 && mkdir /opt/results

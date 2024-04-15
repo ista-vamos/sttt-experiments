@@ -1,11 +1,11 @@
-# FASE 2023 Artifact
+# Artifact for ,,VAMOS: Middleware for Best-Effort Third-Party Monitoring''
 
 NOTE: this README is available also in HTML or PDF format.
 
 ## Summary
 
 This artifact contains a prototype of a runtime monitoring middleware called
-VAMOS as discussed in the FASE 2023 paper _VAMOS: Middleware for Best-Effort
+VAMOS as discussed in the STTT paper _VAMOS: Middleware for Best-Effort
 Third-Party Monitoring_ by Marek Chalupa, Stefanie Muroya Lei, Fabian
 Muehlboeck, and Thomas A. Henzinger. The artifact consist of the software,
 benchmarks discussed in the paper, and a set of scripts to run experiments
@@ -22,8 +22,8 @@ For all benchmarks to make sense, the artifact requires a reasonably modern
 You can load the bundled docker image with `docker load` command and run it:
 
 ```
-docker load < vamos-fase2023.tar.gz
-docker run -ti -v "$(pwd)/results":/opt/results vamos:fase
+docker load < vamos-sttt2023.tar.gz
+docker run -ti -v "$(pwd)/results":/opt/results vamos:sttt
 ```
 
 Note that the image was build for x86 architectures. If your architecture is
@@ -37,14 +37,14 @@ and so building the image may be a better option.
 To build and run the artifact run this command from the top-level directory:
 
 ```
-docker build . -t vamos:fase
+docker build . -t vamos:sttt
 ```
 
 If you are on a new enough Linux system, you may use this command to get
 faster builds:
 
 ```
-DOCKER_BUILDKIT=1 docker build . -t vamos:fase
+DOCKER_BUILDKIT=1 docker build . -t vamos:sttt
 ```
 
 The building process can take more than 10 minutes, based on the used machine
@@ -53,7 +53,7 @@ and the speed of the internet connection.
 To run the built image, use:
 
 ```
-docker run -ti -v "$(pwd)/results":/opt/results vamos:fase
+docker run -ti -v "$(pwd)/results":/opt/results vamos:sttt
 ```
 
 This command starts a docker container with experiments ready to run and gives
