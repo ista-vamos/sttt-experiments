@@ -3,7 +3,7 @@ stream type Events
     E(n : long);
 }
 
-event source Src : Events process using FORWARD to autodrop(@BUFSIZE)
+event source Src : Events to autodrop(@BUFSIZE)
 
 globals
 $$
@@ -41,7 +41,7 @@ monitor
       ++processed;
     $$
 
-    on Hole(n) where $$ true $$
+    on hole(n) where $$ true $$
     $$
       ++holes_num;
       dropped += n;

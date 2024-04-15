@@ -8,7 +8,7 @@ CPPFLAGS=-D_POSIX_C_SOURCE=200809L -DNDEBUG
 LDFLAGS=-lpthread
 
 MON_COMPILER_PY=${vamos_compiler_DIR}/compiler/vamosc.py
-MON_COMPILER=${vamos_compiler_DIR}/gen/compile.sh
+#MON_COMPILER=${vamos_compiler_DIR}/gen/compile.sh
 
 SOURCE_LIBS=$(vamos_buffers_LIBRARIES_DIRS_shmbuf)/libvamos-buffers-shmbuf.a\
             $(vamos_buffers_LIBRARIES_DIRS_core)/libvamos-buffers-source.a\
@@ -34,12 +34,12 @@ source.o: source.c
 source: source.o
 	$(CC) $(CFLAGS) source.o -o source $(SOURCE_LIBS)
 
-monitor.c: monitor.txt
-	python3 $(MON_COMPILER_PY) -freq 10000000 monitor.txt -o monitor.c
-	-clang-format -i monitor.c
+monitor: monitor.txt
+	python3 $(MON_COMPILER_PY) -freq 10000000 monitor.txt -e monitor
 
-monitor: monitor.c
-	$(MON_COMPILER) monitor.c
+#monitor: monitor.c
+	#-clang-format -i monitor.c
+	#$(MON_COMPILER) monitor.c
 
 experiments:
 	python3 -O -m compileall *.py
