@@ -31,7 +31,7 @@ mkfifo /tmp/tessla.in
 
 
 # vamos feeds data to /tmp/tessla.in
-$VAMOS P_0:regex:/primes1 P_1:regex:/primes2 &
+$VAMOS P1:regex:/primes1 P2:regex:/primes2 &
 VAMOS_PID=$!
 
 ./runprimes-dr-bad.sh $1 >primes.stdout.log 2>primes.stderr.log&

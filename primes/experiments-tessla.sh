@@ -11,8 +11,8 @@ cd $(dirname 0)
 source ../setup-vars.sh
 source ../setup.sh
 
-VLCC="python3 $vamos_compiler_DIR/compiler/main.py"
-GENCC="$vamos_compiler_DIR/gen/compile.sh"
+VLCC="python3 $vamos_compiler_DIR/compiler/vamosc.py"
+#GENCC="$vamos_compiler_DIR/gen/compile.sh"
 TESSLA_JAR="$vamos_compiler_DIR/compiler/tessla-rust.jar"
 FREQ=10000000
 
@@ -37,9 +37,7 @@ for SHM_BUFSIZE in 8; do
 		# generate monitor spec
 	        cpp -P $SPEC_IN -DARBITER_BUFSIZE=$ARBITER_BUFSIZE >$SPEC
 		# compile it
-		$VLCC $SPEC -b $ARBITER_BUFSIZE -freq $FREQ -o monitor-tessla.c
-		$GENCC monitor-tessla.c
-		mv monitor vamos-tessla
+		$VLCC $SPEC -b $ARBITER_BUFSIZE -freq $FREQ -e vamos-tessla
 
                 #for PRIMES_NUM in 10000 20000 30000 40000; do
                 ./run-tessla.sh $SHM_BUFSIZE $ARBITER_BUFSIZE $PRIMES_NUM "forward"
@@ -52,9 +50,7 @@ for SHM_BUFSIZE in 8; do
 		sed -i s@SRCDIR@$SRCDIR@ $SPEC
 
 		# compile it
-		$VLCC $SPEC -b $ARBITER_BUFSIZE -freq $FREQ -o monitor-tessla.c
-		$GENCC monitor-tessla.c -I$vamos_compiler_DIR ./intmap.o ./compiler_utils.o -lstdc++
-		mv monitor vamos-tessla
+		$VLCC $SPEC -b $ARBITER_BUFSIZE -freq $FREQ -e vamos-tessla -l ./intmap.o -Lstdc++
 
                 #for PRIMES_NUM in 10000 20000 30000 40000; do
                 ./run-tessla.sh $SHM_BUFSIZE $ARBITER_BUFSIZE $PRIMES_NUM "align"
@@ -66,9 +62,7 @@ for SHM_BUFSIZE in 8; do
 		# generate monitor spec
 		sed s@ARBITER_BUFSIZE@$ARBITER_BUFSIZE@ $SPEC_IN > $SPEC
 		# compile it
-		$VLCC $SPEC -b $ARBITER_BUFSIZE -freq $FREQ -o monitor-tessla.c
-		$GENCC monitor-tessla.c
-		mv monitor vamos-tessla
+		$VLCC $SPEC -b $ARBITER_BUFSIZE -freq $FREQ -e vamos-tessla
 
                 # for PRIMES_NUM in 10000 20000 30000 40000; do
                 ./run-tessla.sh $SHM_BUFSIZE $ARBITER_BUFSIZE $PRIMES_NUM "alternate"

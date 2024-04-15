@@ -27,13 +27,13 @@ fi
 
 $DRRUN -root $DRIOROOT \
 	-opt_cleancall 2 -opt_speed\
-	-c $SOURCESDIR/drregex/libdrregex.so\
+	-c $SOURCESDIR/src/drregex/libdrregex.so\
 	/primes1 prime '#([0-9]+): ([0-9]+)' ii --\
 	$DIR/primes $NUM &
 
 $DRRUN -root $DRIOROOT \
 	-opt_cleancall 2 -opt_speed\
-	-c $SOURCESDIR/drregex/libdrregex.so\
+	-c $SOURCESDIR/src/drregex/libdrregex.so\
 	/primes2 prime '#([0-9]+): ([0-9]+)' ii --\
 	$DIR/primes-bad $NUM 10&
 

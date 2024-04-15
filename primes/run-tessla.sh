@@ -25,7 +25,7 @@ fi
 PRIMES_PID=$!
 
 # vamos feeds data to /tmp/tessla.in
-$VAMOS P_0:regex:/primes1 P_1:regex:/primes2 &
+$VAMOS P1:regex:/primes1 P2:regex:/primes2 &
 VAMOS_PID=$!
 
 /bin/time -f '%e' -o tessla.time $MONITOR < /tmp/tessla.in > tessla.out
