@@ -35,7 +35,7 @@ for buffsize in arbiter_buffer_sizes:
     run(["python3", COMPILER_PATH, f"{CURRENT_PATH}/programs/primes_{buffsize}.txt",
          "-freq", "10000000", "-e", f"{CURRENT_PATH}/programs/monitor_{buffsize}",
          "-l", f"{CURRENT_PATH}/intmap.o", #"-l" , f"{CURRENT_PATH}/compiler_utils.o",
-         "-Lstdc++" 
+         "-Lpthread", "-Lstdc++"
          ],
         check=True)
 
