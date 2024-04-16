@@ -26,8 +26,9 @@ tesslamon/Cargo.toml: bank.tessla
 bankmonitor-$(BUFSIZE).vl: bankmonitor.vl.in
 	sed 's/@BUFSIZE/$(BUFSIZE)/' bankmonitor.vl.in > bankmonitor-$(BUFSIZE).vl
 
-bankmonitor-$(BUFSIZE).c: bankmonitor-$(BUFSIZE).vl tesslamon/Cargo.toml
-	$(VLCC) -o bankmonitor-$(BUFSIZE).c -t -d tesslamon bankmonitor-$(BUFSIZE).vl
+monitor$(BUFSIZE): bankmonitor-$(BUFSIZE).vl tesslamon/Cargo.toml intmap.o
+	$(VLCC) -e monitor$(BUFSIZE) -t -d tesslamon bankmonitor-$(BUFSIZE).vl\
+		-l intmap.o -Lstdc++ -l tesslamon/target/release/libmonitor.a -Ldl
 
 tesslamon/target/release/libmonitor.a: bankmonitor-$(BUFSIZE).c tesslamon/Cargo.toml
 	-cd ./tesslamon; cargo build --release
@@ -35,10 +36,10 @@ tesslamon/target/release/libmonitor.a: bankmonitor-$(BUFSIZE).c tesslamon/Cargo.
 intmap.o: $(vamos_compiler_DIR)/compiler/cfiles/intmap.*
 	g++ -c $< -o $@
 
-monitor$(BUFSIZE): tesslamon/target/release/libmonitor.a bankmonitor-$(BUFSIZE).c intmap.o
-	#NOLTO=yes $(GENCC) bankmonitor-$(BUFSIZE).c intmap.o -lstdc++ tesslamon/target/release/libmonitor.a -ldl
-	$(GENCC) bankmonitor-$(BUFSIZE).c intmap.o -lstdc++ tesslamon/target/release/libmonitor.a -ldl
-	mv monitor monitor$(BUFSIZE)
+#monitor$(BUFSIZE): tesslamon/target/release/libmonitor.a bankmonitor-$(BUFSIZE).c intmap.o
+#	#NOLTO=yes $(GENCC) bankmonitor-$(BUFSIZE).c intmap.o -lstdc++ tesslamon/target/release/libmonitor.a -ldl
+#	$(GENCC) bankmonitor-$(BUFSIZE).c intmap.o -lstdc++ tesslamon/target/release/libmonitor.a -ldl
+#	mv monitor monitor$(BUFSIZE)
 
 experiments: ../bank/interact ../bank/bank
 	./experiments.sh
