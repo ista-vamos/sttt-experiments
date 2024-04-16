@@ -19,7 +19,7 @@ interact: interact.c
 	$(CC) $^ $(CFLAGS) $(CPPFLAGS) -o $@ -g
 
 monitor-vamos: bankmonitor.vl  $(VLCC) $(SHAMON_LIB) intmap.o
-	$(VLCC) bankmonitor.vl -e monitor-vamos -Lstdc++ -l intmap.o
+	$(VLCC) bankmonitor.vl --nondeterministic-conditions -e monitor-vamos -Lstdc++ -l intmap.o
 
 bank.o : bank.c bank.h
 	$(CC) -c $< $(CFLAGS) $(CPPFLAGS) -o $@

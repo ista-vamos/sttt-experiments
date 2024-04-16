@@ -30,11 +30,11 @@ if [ ! -x $DRRUN ]; then
 fi
 
 DRRUN="$DRRUN -root $DRIOROOT/\
-	-c $vamos_sources_DIR/drregex/libdrregex-mt.so"
+	-c $vamos_sources_DIR/src/drregex/libdrregex-mt.so"
 
 MONITOR=$(dirname $0)/monitor-vamos
 if [ $(basename "$0") == "regexbank-dump.sh" ]; then
-	MONITOR=$vamos_buffers_LIBRARIES_DIR_core/../../monitors/monitor-generic
+	MONITOR=$vamos_compiler_DIR/../vamos-monitors/monitor-generic
 fi
 
 rm -f /tmp/fifo{A,B}
