@@ -1,4 +1,4 @@
-FROM ubuntu:20.04 AS base
+FROM ubuntu:23.04 AS base
 
 RUN set -e
 
@@ -28,54 +28,40 @@ RUN git clone --depth=1 https://github.com/DynamoRIO/dynamorio -b release_10.0.0
     cmake .. &&\
     make -j4
 
-FROM base-git AS llvm
-
-# Install LLVM 14
-RUN echo 'deb [trusted=yes] http://apt.llvm.org/focal/  llvm-toolchain-focal-14 main' >> /etc/apt/sources.list &&\
-    apt-get update
-#RUN wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh &&\
-#    sed -i 's@PKG="clang-$LLVM_VERSION.*@PKG="clang-$LLVM_VERSION"@' ./llvm.sh &&\
-#    ./llvm.sh 14 &&\
-RUN apt-get install -y --no-install-recommends clang-14 llvm-14-dev &&\
-    ln -s /usr/bin/clang-14 /usr/bin/clang &&\
-    ln -s /usr/bin/clang++-14 /usr/bin/clang++ &&\
-    ln -s /usr/bin/llvm-link-14 /usr/bin/llvm-link &&\
-    ln -s /usr/bin/llvm-config-14 /usr/bin/llvm-config &&\
-    ln -s /usr/bin/opt-14 /usr/bin/opt
 
 # clone VAMOS
-FROM llvm AS vamos
+FROM base-git AS vamos
 WORKDIR /opt
+# Install LLVM and clang
+RUN apt-get install -y --no-install-recommends clang llvm-dev
+# Install pkg-config for libinput sources
 RUN apt-get install -y --no-install-recommends pkg-config #libevdev-dev libinput-dev autoconf automake autotools-dev libtool
 #RUN apt-get install -y --no-install-recommends libwayland-dev weston
+
+WORKDIR /opt
 RUN git clone --depth=1 https://github.com/ista-vamos/vamos -b sttt
 #compile VAMOS
 WORKDIR /opt/vamos
 COPY --from=dynamorio /opt/dynamorio/build /opt/dynamorio/build
 #RUN git submodule update --init --recursive
 #RUN cd vamos-sources && make -C ext wldbg
-RUN make -j2 CC=clang CXX=clang++ BUILD_TYPE=Release DynamoRIO_DIR=/opt/dynamorio/build/cmake LIBINPUT_SOURCES=OFF WLDBG_SOURCES=OFF
+RUN make -j2 CC=clang CXX=clang++ BUILD_TYPE=Debug DynamoRIO_DIR=/opt/dynamorio/build/cmake\
+	LIBINPUT_SOURCES=OFF WLDBG_SOURCES=OFF
 # copy and setup the experiments
 # COPY . /opt/vamos/fase23-experiments
 RUN make fase23-experiments DynamoRIO_DIR=/opt/dynamorio/build/cmake 
 
 FROM base as prepare-artifact
-RUN pip install matplotlib==3.6.0 pandas==1.5.0 seaborn==0.12.0 && mkdir /opt/results
+RUN mkdir /opt/results
 # again install LLVM -- if we try to copy it, it gets broken
-RUN echo 'deb [trusted=yes] http://apt.llvm.org/focal/  llvm-toolchain-focal-14 main' >> /etc/apt/sources.list &&\
-    apt-get update
 RUN apt-get install -y --no-install-recommends\
         cargo\
-	clang-14 \
-	llvm-14\
-        openjdk-17-jdk\
-        valgrind && \
-        ln -s /usr/bin/clang-14 /usr/bin/clang &&\
-        ln -s /usr/bin/clang++-14 /usr/bin/clang++ &&\
-        ln -s /usr/bin/llvm-link-14 /usr/bin/llvm-link &&\
-        ln -s /usr/bin/llvm-config-14 /usr/bin/llvm-config &&\
-        ln -s /usr/bin/opt-14 /usr/bin/opt
-
+	clang \
+        #openjdk-17-jdk\
+        valgrind\
+	python3-matplotlib\
+	python3-pandas\
+	python3-seaborn
 
 FROM prepare-artifact as artifact
 COPY --from=vamos /opt/vamos /opt/vamos
@@ -85,5 +71,5 @@ WORKDIR /opt/vamos/fase23-experiments
 # "install" TSan for dataraces experiments
 # for some reason we cannot install TSan normally
 # Install packages for generating plots and prepare the dir for results
-COPY ./dataraces/libclang_rt.tsan-x86_64.a /usr/lib/llvm-14/lib/clang/14.0.6/lib/linux/libclang_rt.tsan-x86_64.a
+# COPY ./dataraces/libclang_rt.tsan-x86_64.a /usr/lib/llvm-14/lib/clang/14.0.6/lib/linux/libclang_rt.tsan-x86_64.a
 
