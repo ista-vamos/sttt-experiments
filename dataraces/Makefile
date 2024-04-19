@@ -23,7 +23,7 @@ CPPFLAGS += -DNDEBUG
 endif
 endif
 
-MON_COMPILER_PY=$(vamos_compiler_DIR)/compiler/main.py
+MON_COMPILER_PY=$(vamos_compiler_DIR)/compiler/vamosc.py
 MON_COMPILER=$(vamos_compiler_DIR)/gen/compile.sh
 
 all: monitor
@@ -31,15 +31,11 @@ all: monitor
 monitor.o: monitor.cpp
 	$(CXX) -I$(vamos_buffers_INCLUDE_DIRS) $(CXXFLAGS) $(CPPFLAGS) $(MONITOR_CPP_FLAGS) monitor.cpp -std=c++17 -c
 
-monitor.c: monitor.txt clean
-	python3 $(MON_COMPILER_PY) monitor.txt -b $(ARBITER_BUFFER) -o monitor.c
-	-clang-format -i monitor.c
+monitor: monitor.txt monitor.o compiler_utils.o clean
+	python3 $(MON_COMPILER_PY) monitor.txt -b $(ARBITER_BUFFER) -e monitor -Lstdc++ -l compiler_utils.o -l monitor.o
 
 compiler_utils.o: $(vamos_compiler_DIR)/compiler/cfiles/compiler_utils.c
 	$(CC) -g -c $<  -I$(vamos_buffers_INCLUDE_DIRS) -o $@
-
-monitor: monitor.c monitor.o compiler_utils.o
-	$(MON_COMPILER) monitor.c monitor.o -I$(vamos_compiler_DIR) -lstdc++ compiler_utils.o
 
 run: monitor
 	./monitor Program:generic:/vrd

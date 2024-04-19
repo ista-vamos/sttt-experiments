@@ -35,7 +35,7 @@ source: source.o
 	$(CC) $(CFLAGS) source.o -o source $(SOURCE_LIBS)
 
 monitor: monitor.txt
-	python3 $(MON_COMPILER_PY) -freq 10000000 monitor.txt -e monitor
+	python3 $(MON_COMPILER_PY) --nondeterministic-conditions -freq 10000000 monitor.txt -e monitor
 
 #monitor: monitor.c
 	#-clang-format -i monitor.c
