@@ -123,6 +123,20 @@ vamos_race_wrng = tmp.loc[(~tmp[("is-racy")]) & (tmp[("vamos-races", "max")].ast
 vamos_norace_corr = tmp.loc[(~tmp[("is-racy")]) & (tmp[("vamos-races", "max")].astype(int) == 0)]
 vamos_norace_wrng = tmp.loc[(tmp[("is-racy")]) & (tmp[("vamos-races", "max")].astype(int) == 0)]
 vamos_to = get_timeouts("vamos")
+print("VMS", vamos_to)
+
+# tmp1 = get_races("vamos")
+# tmp2 = get_races("tsan")
+# tmp3 = get_races("hel")
+# tmp1 = tmp1[["benchmark", "vamos-races"]]
+# tmp2 = tmp2[["benchmark", "tsan-races"]]
+# tmp3 = tmp3[["benchmark", "hel-races", "is-racy"]]
+# 
+# tmp = pd.concat([tmp1.set_index('benchmark'),tmp2.set_index('benchmark'), tmp3.set_index('benchmark')], axis=1, join='outer')
+# tmp.reset_index(inplace=True)
+# with open("/tmp/df.txt", "w") as f:
+#     print(tmp.to_string(), file=f)
+
 
 def get_times(tool):
     tmp = data.loc[~(data[f"{tool}-races"].astype(str).str.contains("TO")), ("benchmark", f"{tool}-time")]
