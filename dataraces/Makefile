@@ -31,8 +31,8 @@ all: monitor
 monitor.o: monitor.cpp
 	$(CXX) -I$(vamos_buffers_INCLUDE_DIRS) $(CXXFLAGS) $(CPPFLAGS) $(MONITOR_CPP_FLAGS) monitor.cpp -std=c++17 -c
 
-monitor: monitor.txt monitor.o compiler_utils.o clean
-	python3 $(MON_COMPILER_PY) monitor.txt -b $(ARBITER_BUFFER) -e monitor -Lstdc++ -l compiler_utils.o -l monitor.o
+monitor: clean monitor.txt monitor.o compiler_utils.o 
+	python3 $(MON_COMPILER_PY) monitor.txt -b $(ARBITER_BUFFER) -o monitor.c -e monitor -Lstdc++ -l compiler_utils.o -l monitor.o
 
 compiler_utils.o: $(vamos_compiler_DIR)/compiler/cfiles/compiler_utils.c
 	$(CC) -g -c $<  -I$(vamos_buffers_INCLUDE_DIRS) -o $@

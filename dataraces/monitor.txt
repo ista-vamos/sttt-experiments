@@ -12,20 +12,21 @@ stream type ThreadEvent(threadid: int, inhole : int16_t, nonecount : uint16_t, n
     join(timestamp: uint64_t, threadid: uint64_t);
     write_n(timestamp: uint64_t, addr : intptr_t, size: size_t);
     read_n(timestamp: uint64_t, addr : intptr_t, size: size_t);
+    my_hole(n : uint64_t, firstts : uint64_t, lastts: uint64_t);
 }
-stream processor TEProcessor(threadid : int) : ThreadEvent(threadid, 0, 0, 0, 0, 0) -> ThreadEvent(threadid, 0, 0, 0, 0, 0) extends FORWARD
+stream processor TEProcessor(threadid : int) : ThreadEvent(threadid, 0, 0, 0, 0, 0) -> ThreadEvent(threadid, 0, 0, 0, 0, 0) to autodrop(@BUFSIZE,256)
 {
-    on fork(ts, ntid) creates ThreadEvent process using TEProcessor(ntid) to autodrop(@BUFSIZE,256) include in Threads forward;
-    my_hole
+    on fork(ts, ntid) creates ThreadEvent process using TEProcessor(ntid) include in Threads forward;
+    hole my_hole
     {
-        int n = COUNT(*);
+        uint64_t n = COUNT(*);
         uint64_t firstts = MIN(read.timestamp, write.timestamp, read_n.timestamp, write_n.timestamp, atomicread.timestamp, atomicwrite.timestamp, lock.timestamp, unlock.timestamp, alloc.timestamp, free.timestamp, fork.timestamp, join.timestamp);
         uint64_t lastts = MAX(read.timestamp, write.timestamp, read_n.timestamp, write_n.timestamp, atomicread.timestamp, atomicwrite.timestamp, lock.timestamp, unlock.timestamp, alloc.timestamp, free.timestamp, fork.timestamp, join.timestamp);
     }
 }
 
 buffer group Threads : ThreadEvent order by nextts
-event source Program : ThreadEvent process using TEProcessor(0) to autodrop(@BUFSIZE,256) include in Threads
+event source Program : ThreadEvent process using TEProcessor(0)  include in Threads
 
 stream type GlobalEvent
 {
@@ -89,7 +90,7 @@ arbiter : GlobalEvent
             #endif
             if(ts==nextts)
             {
-                $yield read(T.threadid, ts, addr);
+                $yield read($T.threadid;, ts, addr);
                 $drop 1 from T;
                 nextts++;
                 leastts=ULLONG_MAX;
@@ -114,7 +115,7 @@ arbiter : GlobalEvent
             //printf("write! %lu/%lu\n",ts,nextts);
             if(ts==nextts)
             {
-                $yield write(T.threadid, ts, addr);
+                $yield write($T.threadid;, ts, addr);
                 $drop 1 from T;
                 nextts++;
                 leastts=ULLONG_MAX;
@@ -137,7 +138,7 @@ arbiter : GlobalEvent
             #endif
             if(ts==nextts)
             {
-                $yield read_sized(T.threadid, ts, addr, size);
+                $yield read_sized($T.threadid;, ts, addr, size);
                 $drop 1 from T;
                 nextts++;
                 leastts=ULLONG_MAX;
@@ -161,7 +162,7 @@ arbiter : GlobalEvent
             #endif
             if(ts==nextts)
             {
-                $yield write_sized(T.threadid, ts, addr, size);
+                $yield write_sized($T.threadid;, ts, addr, size);
                 $drop 1 from T;
                 nextts++;
                 leastts=ULLONG_MAX;
@@ -185,7 +186,7 @@ arbiter : GlobalEvent
             #endif
             if(ts==nextts)
             {
-                $yield lock(T.threadid, ts, addr);
+                $yield lock($T.threadid;, ts, addr);
                 $drop 1 from T;
                 nextts++;
                 leastts=ULLONG_MAX;
@@ -208,7 +209,7 @@ arbiter : GlobalEvent
             #endif
             if(ts==nextts)
             {
-                $yield unlock(T.threadid, ts, addr);
+                $yield unlock($T.threadid;, ts, addr);
                 $drop 1 from T;
                 nextts++;
                 leastts=ULLONG_MAX;
@@ -231,7 +232,7 @@ arbiter : GlobalEvent
             #endif
             if(ts==nextts)
             {
-                $yield fork(T.threadid, ts, tid);
+                $yield fork($T.threadid;, ts, tid);
                 $drop 1 from T;
                 nextts++;
                 leastts=ULLONG_MAX;
@@ -254,7 +255,7 @@ arbiter : GlobalEvent
             #endif
             if(ts==nextts)
             {
-                $yield join(T.threadid, ts, tid);
+                $yield join($T.threadid;, ts, tid);
                 $drop 1 from T;
                 nextts++;
                 leastts=ULLONG_MAX;
@@ -281,11 +282,11 @@ arbiter : GlobalEvent
                 {
                     skipcount+=n;
                     dropcount+=n;
-                    $yield skipstart(T.threadid, nextts);
+                    $yield skipstart($T.threadid;, nextts);
                     $T.nextts;=maxts;
                     if(maxts<=nextts)
                     {
-                        $yield skipend(T.threadid, nextts);
+                        $yield skipend($T.threadid;, nextts);
                         $drop 1 from T;
                         ++holescount;
                         leastts=ULLONG_MAX;
@@ -310,7 +311,7 @@ arbiter : GlobalEvent
             {
                 if(maxts==nextts)
                 {
-                    $yield skipend(T.threadid, maxts);
+                    $yield skipend($T.threadid;, maxts);
                     $drop 1 from T;
                     ++holescount;
                     nextts++;
@@ -333,7 +334,7 @@ arbiter : GlobalEvent
             {
                 seenNone--;
             }
-            $yield done_(T.threadid, nextts);
+            $yield done_($T.threadid;, nextts);
             $remove T from Threads;
         $$
         on T : nothing where $$ (!findleast) || $T.nonets;<nextts $$
