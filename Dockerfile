@@ -35,7 +35,7 @@ WORKDIR /opt
 # Install LLVM and clang
 RUN apt-get install -y --no-install-recommends clang llvm-dev
 # Install pkg-config for libinput sources
-RUN apt-get install -y --no-install-recommends pkg-config #libevdev-dev libinput-dev autoconf automake autotools-dev libtool
+#RUN apt-get install -y --no-install-recommends pkg-config #libevdev-dev libinput-dev autoconf automake autotools-dev libtool
 #RUN apt-get install -y --no-install-recommends libwayland-dev weston
 
 WORKDIR /opt
@@ -48,8 +48,8 @@ COPY --from=dynamorio /opt/dynamorio/build /opt/dynamorio/build
 RUN make -j2 CC=clang CXX=clang++ BUILD_TYPE=Debug DynamoRIO_DIR=/opt/dynamorio/build/cmake\
 	LIBINPUT_SOURCES=OFF WLDBG_SOURCES=OFF
 # copy and setup the experiments
-# COPY . /opt/vamos/fase23-experiments
-RUN make fase23-experiments DynamoRIO_DIR=/opt/dynamorio/build/cmake 
+# COPY . /opt/vamos/sttt-experiments
+RUN make sttt-experiments DynamoRIO_DIR=/opt/dynamorio/build/cmake 
 
 FROM base as prepare-artifact
 RUN mkdir /opt/results
@@ -66,7 +66,7 @@ RUN apt-get install -y --no-install-recommends\
 FROM prepare-artifact as artifact
 COPY --from=vamos /opt/vamos /opt/vamos
 COPY --from=dynamorio /opt/dynamorio/build /opt/dynamorio/build
-WORKDIR /opt/vamos/fase23-experiments
+WORKDIR /opt/vamos/sttt-experiments
 
 # "install" TSan for dataraces experiments
 # for some reason we cannot install TSan normally
