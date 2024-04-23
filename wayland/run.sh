@@ -12,6 +12,7 @@ fi
 
 DEV=/dev/input/event5
 DEV=/dev/input/event13
+DEV=/dev/input/event11
 WIDTH=1920
 HEIGHT=1080
 APP=weston-terminal
@@ -23,8 +24,8 @@ sleep 1
 
 export WAYLAND_DISPLAY=wayland-1
 
-$vamos_sources_SRCDIR/src/wldbg/wldbg-source &>wldbg.log &
-$vamos_sources_SRCDIR/src/libinput/vsrc-libinput --shmkey /libinput &>libinput.log &
+$vamos_sources_DIR/src/wldbg/wldbg-source &>wldbg.log &
+$vamos_sources_DIR/src/libinput/vsrc-libinput --shmkey /libinput &>libinput.log &
 LIBINPUT_PID=$!
 
 sleep 1
@@ -48,5 +49,5 @@ kill -INT $WESTON_PID
 
 wait $MONITOR_PID
 sleep 2
-killll vsrc-libinput || true
-killll wldbg || true
+kill vsrc-libinput || true
+kill wldbg || true

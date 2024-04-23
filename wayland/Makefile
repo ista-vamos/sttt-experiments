@@ -18,9 +18,9 @@ FREQ=10
 CPPFLAGS=-g -O2
 CFLAGS=-g -O2
 
-VLCC=python3 ${vamos_compiler_SRCDIR}/compiler/main.py
-GENCC=${vamos_compiler_SRCDIR}/gen/compile.sh
-COMPILER_CFILES=${vamos_compiler_SRCDIR}/compiler/cfiles/
+VLCC=python3 ${vamos_compiler_DIR}/compiler/main.py
+GENCC=${vamos_compiler_DIR}/gen/compile.sh
+COMPILER_CFILES=${vamos_compiler_DIR}/compiler/cfiles/
 
 all: monitor
 
