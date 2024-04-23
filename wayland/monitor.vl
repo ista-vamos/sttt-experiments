@@ -1,0 +1,128 @@
+stream type WaylandSource
+{
+    client_new(pid: int);
+    client_exit(pid: int);
+}
+
+stream type WaylandConnection(pid: int)
+{
+    pointer_motion(time: double, way_time: uint32_t, x: uint32_t, y : uint32_t);
+    pointer_button(time: double, serial: uint32_t, way_time: uint32_t,
+                   button: uint32_t, pressed : uint32_t);
+    keyboard_key(time: double, serial: uint32_t, way_time: uint32_t, key: uint32_t, pressed: uint8_t);
+}
+
+stream processor WaylandProcessor
+: WaylandSource -> WaylandConnection extends FORWARD
+{
+    on client_new(pid) creates WaylandConnection(pid, 0, 0) to autodrop(@BUFSIZE)
+    	include in WaylandConnections forward;
+}
+
+buffer group WaylandConnections : WaylandConnection order by fn_topts_ord
+event source Clients : WaylandSource process using WaylandProcessor to autodrop(64)
+
+
+stream type LibinputSource
+{
+    pointer_motion(time: double, dx: double, dy: double, unacc_dx: double, unacc_dy: double);
+    pointer_button(time: double, button: uint32_t, pressed: uint8_t);
+    keyboard_key(time: double, key: uint32_t, pressed: uint8_t);
+}
+
+event source Libinput : LibinputSource to autodrop(@BUFSIZE)
+
+
+stream type MonitorEvent
+{
+    WaylandMotion(timestamp: double, dx: uint32_t, dy: uint32_t);
+    LibinputMotion(timestamp: double, dx: double, dy: double);
+
+    WaylandButton(timestamp: double, button: uint32_t, pressed: uint8_t);
+    LibinputButton(timestamp: double, button: uint32_t, pressed: uint8_t);
+
+    WaylandKey(timestamp: double, key: uint32_t, pressed: uint8_t);
+    LibinputKey(timestamp: double, key: uint32_t, pressed: uint8_t);
+
+}
+
+globals
+$$
+#include <wayland-util.h> // wl_fixed
+
+// true if s1 has events with higher timestamp
+bool fn_topts_ord(vms_arbiter_buffer *s1, vms_arbiter_buffer *s2) {
+	STREAM_WaylandConnection_out *ev1, *ev2;
+	if ((ev1 = (STREAM_WaylandConnection_out*)vms_arbiter_buffer_top(s1))) {
+	    if ((ev2 = (STREAM_WaylandConnection_out*)vms_arbiter_buffer_top(s2))) {
+		/* every event starts with time field, so just access pointer_motion */
+		return ev1->cases.pointer_motion.time >
+		       ev2->cases.pointer_motion.time;
+	    }
+
+	    return true;
+	}
+
+	return false;
+}
+
+static double last_ts = 0;
+$$
+
+arbiter : MonitorEvent
+{
+    choose first 1 C from WaylandConnections
+    {
+        on C : keyboard_key(time, serial, wtime, key, pressed) |
+        $$
+            /*printf("[%i] wayland.key(time=%f, serial=%u, way_time: %u, key=%u, pressed=%u)\n", $C.pid;, time, serial, wtime, key, pressed);*/
+
+	    $yield WaylandKey(time, key, pressed);
+        $$
+
+        on C : pointer_motion(time, wtime, x, y) |
+        $$
+	    /*
+            printf("[%i] wayland.motion(time=%f, way_time=%u, x=%f, y=%f)\n",
+		   $C.pid;, time, wtime,
+		   wl_fixed_to_double(x),
+		   wl_fixed_to_double(y));
+	    */
+        $$
+
+   	on C : pointer_button(time, serial, wtime, button, pressed) |
+   	$$
+   	    /*printf("way.button(time: %f, serial: %u, way_time: %u, button=%u, pressed=%u)\n", time, serial, wtime, button, pressed); */
+   	$$
+
+   	on Libinput : keyboard_key(time, key, pressed) |
+   	$$
+   	    //printf("libinput.key(time: %f, key=%u, pressed=%u)\n", time, key, pressed);
+   	$$
+
+   	on Libinput : pointer_motion(time, dx, dy, udx, udy) |
+   	$$
+   	    //printf("libinput.motion(time: %f, dx=%5.2f, dy=%5.2f,)\n", time, dx, dy);
+   	$$
+
+   	on Libinput : pointer_button(time, button, pressed) |
+   	$$
+   	    //printf("libinput.button(time: %f, button=%u, pressed=%u)\n", time, button, pressed);
+   	$$
+    }
+
+    on Libinput : | keyboard_key(time, key, pressed)
+    $$
+    $$
+
+    on Libinput : | pointer_motion(time, dx, dy, udx, udy)
+    $$
+    $$
+}
+
+monitor {
+	on WaylandKey(time, k, s) where $$ true $$
+	$$
+	    printf("TS: %f\n", time);
+	$$
+}
