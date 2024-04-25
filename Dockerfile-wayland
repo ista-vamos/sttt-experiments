@@ -1,0 +1,65 @@
+FROM ubuntu:23.04 AS base
+
+RUN set -e
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV GIT_SSL_NO_VERIFY=1
+
+# Install packages
+RUN apt-get -y update
+RUN apt-get install -y --no-install-recommends\
+        python3\
+        g++\
+        gcc\
+        make\
+        time
+
+FROM base AS base-git
+RUN apt-get install -y --no-install-recommends\
+        cmake\
+        git
+
+
+# clone VAMOS
+FROM base-git AS vamos
+
+WORKDIR /opt
+# Install clang
+RUN apt-get install -y --no-install-recommends clang
+# Install pkg-config for libinput sources
+RUN apt-get install -y --no-install-recommends pkg-config libevdev-dev libinput-dev autoconf automake autotools-dev libtool
+RUN apt-get install -y --no-install-recommends libwayland-dev
+
+WORKDIR /
+WORKDIR /opt
+RUN git clone --depth=1 https://github.com/ista-vamos/vamos -b sttt
+#compile VAMOS
+COPY . /opt/vamos/sttt-experiments
+WORKDIR /opt/vamos/sttt-experiments
+RUN git clean -xdf
+WORKDIR /opt/vamos
+RUN git submodule update --init --recursive
+RUN cd vamos-sources && make -C ext wldbg
+RUN make -j2 CC=clang CXX=clang++ BUILD_TYPE=Debug DYNAMORIO_SOURCES=OFF\
+	LLVM_SOURCES=OFF LIBINPUT_SOURCES=ON WLDBG_SOURCES=ON
+# copy and setup the experiments
+RUN make sttt-experiments
+
+FROM base as prepare-artifact
+RUN mkdir /opt/results
+RUN apt-get install -y --no-install-recommends\
+	python3-matplotlib\
+	python3-pandas\
+	python3-seaborn\
+	weston
+
+RUN apt-get install -y --no-install-recommends\
+	xauth\
+	libgl1-mesa-dri\
+	libwayland-dev
+RUN touch /root/.Xauthority
+
+FROM prepare-artifact as artifact
+COPY --from=vamos /opt/vamos /opt/vamos
+WORKDIR /opt/vamos/sttt-experiments
+
