@@ -3,13 +3,22 @@
 CSV=results.csv
 mkdir -p logs
 
+DEV=$(echo "-1"  | evemu-describe 2>&1 | grep -i 'touchpad' | cut -d ':' -f 1)
+if [ ! -c "$DEV" ]; then
+	echo -e "Failed detecting the touchpad device"
+	echo -e "Please set the variable DEV in $0 manually\n"
+	echo -e "E.g., DEV=/dev/input/event13\n"
+	echo -e "The list of devices can be obtained via 'evemu-describe' or 'libinput list-devices'"
+	exit 1
+fi
+
 for BUFSIZE in 3; do
 for TAU in 10 30 50; do
 for DELTA in 10 30 50 70 100; do
 for EVENTS in events3.txt; do
 	make BUFSIZE=$BUFSIZE TAU=$TAU DELTA=$DELTA
 	rm monitor.log
-	./run.sh $EVENTS
+	./run.sh $EVENTS $DEV
 	cp monitor.log logs/$EVENTS-$BUFSIZE-$TAU-$DELTA-monitor.log
 
 	NUMS=$(python parse_log.py monitor.log)

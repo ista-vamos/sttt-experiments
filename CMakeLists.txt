@@ -10,8 +10,8 @@ if (vamos_DIR)
 	message(STATUS "vamos_DIR given, assuming buffers and etc. are in the standard paths given by sub-modules")
 
 	set(vamos-buffers_DIR ${vamos_DIR}/vamos-buffers/cmake/vamos-buffers)
-	set(vamos_compiler_DIR ${vamos_DIR}/vamos-compiler/cmake/vamos-compiler)
-	set(vamos_sources_DIR ${vamos_DIR}/vamos-sources/cmake/vamos-sources)
+	set(vamos_compiler_DIR ${vamos_DIR}/vamos-compiler)
+	set(vamos_sources_DIR ${vamos_DIR}/vamos-sources)
 endif()
 
 find_package(vamos-buffers REQUIRED)
