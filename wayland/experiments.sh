@@ -1,5 +1,8 @@
 #!/bin/bash
 
+xauth add $XAUTH\
+	|| echo "xauth failed, if there are problems with running X, call 'xhost +' from your system (not from the docker)"
+
 CSV=results.csv
 mkdir -p logs
 
