@@ -12,18 +12,37 @@ docker build . -f Dockerfile-wayland  -t  vamos:wayland
 
 ## Running the docker image
 
-First, identify what device is your touchpad (for instructions with mouse, see later)
-by calling either `evemu-describe` or `libinput list-devices`.
-You will get a list of devices including information about
-the block file called `/dev/input/eventXX` where XX is a number.
-This is the file that we need. Once you know the device, run:
+First, identify what device is your touchpad (for instructions with mouse, see
+later) by calling either `evemu-describe` or `libinput list-devices`. You will
+get a list of devices including information about the block file called
+`/dev/input/eventXX` where XX is a number. This is the file that we need. To
+make sure you are working with the right device, you may run
+```
+evemu-record /dev/input/eventXX
+```
+
+If you see events generated while using the device, it is the right one.
+Once you know the device, run:
 
 ```
-DEVICE=/dev/input/event17  # replace with your touchpad device
 DEVTYPE=touchpad           # set to "mouse" if your device is a mouse and not touchpad
+DEVICE=/dev/input/eventXX  # replace with your touchpad/mouse device
 
 docker run --rm -it  --network host -v /tmp/.X11-unix:/tmp/.X11-unix --env DISPLAY=$DISPLAY  --env XDG_RUNTIME_DIR=/tmp --device /dev/dri/card1 --device $DEVICE --env XAUTH="$(xauth list|grep $(uname -n))" --env DEVTYPE=$DEVTYPE vamos:wayland /bin/bash
 ```
+
+Once you are in the shell inside docker, run
+```
+./experiments.sh
+```
+
+To manually run one benchmark, you can use
+```
+./run.sh file-with-events.txt $DEVICE
+```
+
+Feel free to explore and modify the script `./run.sh`.
+
 
 ## Monitor size and multi-monitor setup
 

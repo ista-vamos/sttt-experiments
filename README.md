@@ -9,33 +9,26 @@ Muehlboeck, and Thomas A. Henzinger. The artifact consist of the software,
 benchmarks discussed in the paper, and a set of scripts to run experiments
 and present the results.
 
-The artifact is split in two:
-1) 
+The artifact has two parts:
+ 1) basic experiments and experiments with data race detection
+ 2) experiments with monitoring wayland conncations
+
+We split the artifact into two as each of those parts needs completely
+different system packages.
 
 ## Hardware Requirements
 
 For all benchmarks to make sense, the artifact requires a reasonably modern
 (~past 5? years) x86-64 processor with multiple cores (ideally at least 6 cores).
 
-
-## Using a bundled docker image
-
-You can load the bundled docker image with `docker load` command and run it:
-
-```
-docker load < vamos-sttt2023.tar.gz
-docker run -ti -v "$(pwd)/results":/opt/results vamos:sttt
-```
-
-Note that the image was build for x86 architectures. If your architecture is
-different, you either need to specify `--platform` when running/creating
-the container to emulate your architecture or build the image yourself.
-Note that emulating the architecture brings non-negligible overhead
-and so building the image may be a better option.
-
 ## Building the artifact
 
-To build and run the artifact run this command from the top-level directory:
+There are two docker files that build the two artifacts, `Dockerfile`,
+and `Dockerfile-wayland`.
+Use the switch `-f` with `docker build` to specify which one to build.
+The default is `Dockerfile`.
+
+To build and run the artifact, run this command from the top-level directory:
 
 ```
 docker build . -t vamos:sttt
@@ -51,13 +44,17 @@ DOCKER_BUILDKIT=1 docker build . -t vamos:sttt
 The building process can take more than 10 minutes, based on the used machine
 and the speed of the internet connection.
 
-To run the built image, use:
+## Starting the artifact
+
+If the artifact was build from the `Dockerfile` (the first part), use:
 
 ```
 docker run -ti -v "$(pwd)/results":/opt/results vamos:sttt
 ```
+For `Dockerfile-wayland` go into the `wayland` sub-directory
+and follow the `README.md` there.
 
-This command starts a docker container with experiments ready to run and gives
+These commands starts a docker container with experiments ready to run and gives
 you a shell in this container. It also creates a folder `results/` in the
 current directory to the container where will the results of the experiments
 appear. Feel free to change `$(pwd)/results` to a directory of your choice.
