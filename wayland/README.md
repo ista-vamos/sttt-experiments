@@ -29,11 +29,13 @@ docker run --rm -it  --network host -v /tmp/.X11-unix:/tmp/.X11-unix --env DISPL
 
 Our scripts automatically try to find out the size of the screen.
 However, if you use a multi-monitor setup, they can get confused.
-In that case,  
+In that case,  after starting the docker image, modify the variables
+`WIDTH` and `HEIGHT` in the script `run.sh`.
 
-The size of the screen for which we pre-generated events may differ from the size
+Also, the size of the screen for which we pre-generated events may differ from the size
 of the screen you have. If experiments behave weirdly, try recording your own events
 as described below and using those.
+
 
 ## Using your own events
 

@@ -6,17 +6,18 @@ xauth add $XAUTH\
 CSV=results.csv
 mkdir -p logs
 
-DEV=$(echo "-1"  | evemu-describe 2>&1 | grep -i 'touchpad' | cut -d ':' -f 1)
-if [ ! -c "$DEV" ]; then
-	echo -e "Failed detecting the touchpad device"
-	echo -e "Please set the variable DEV in $0 manually\n"
-	echo -e "E.g., DEV=/dev/input/event13\n"
-	echo -e "The list of devices can be obtained via 'evemu-describe' or 'libinput list-devices'"
+if [ -z "$DEVTYPE" ]; then
+	echo "Set DEVTYPE to either 'touchpad' or 'mouse'"
 	exit 1
 fi
 
-if [ -z "$DEVTYPE" ]; then
-	echo "Set DEVTYPE to either 'touchpad' or 'mouse'"
+
+DEV=$(echo "-1"  | evemu-describe 2>&1 | grep -i "$DEVTYPE" | cut -d ':' -f 1)
+if [ ! -c "$DEV" ]; then
+	echo -e "Failed detecting the $DEVTYPE device"
+	echo -e "Please set the variable DEV in $0 manually\n"
+	echo -e "E.g., DEV=/dev/input/event13\n"
+	echo -e "The list of devices can be obtained via 'evemu-describe' or 'libinput list-devices'"
 	exit 1
 fi
 
