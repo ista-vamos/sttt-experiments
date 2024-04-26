@@ -1,3 +1,11 @@
+# Wayland experiments
+
+## Building the docker image
+
+```
+docker build . -f Dockerfile-wayland  -t  vamos:wayland
+```
+
 ## Running the docker image
 
 First, identify what device is your touchpad (for instructions with mouse, see later)
@@ -8,9 +16,9 @@ This is the file that we need. Once you know the device, run:
 
 ```
 DEVICE=/dev/input/event17  # replace with your touchpad device
-DEV_IS_MOUSE=0             # set to 1 if your device is a mouse and not touchpad
+DEVTYPE=touchpad           # set to "mouse" if your device is a mouse and not touchpad
 
-docker run --rm -it  --network host -v /tmp/.X11-unix:/tmp/.X11-unix --env DISPLAY=$DISPLAY  --env XDG_RUNTIME_DIR=/tmp --device /dev/dri/card1 --device $DEVICE --env XAUTH="$(xauth list|grep $(uname -n))" --env DEV_IS_MOUSE=$DEV_IS_MOUSE vamos:wayland /bin/bash
+docker run --rm -it  --network host -v /tmp/.X11-unix:/tmp/.X11-unix --env DISPLAY=$DISPLAY  --env XDG_RUNTIME_DIR=/tmp --device /dev/dri/card1 --device $DEVICE --env XAUTH="$(xauth list|grep $(uname -n))" --env DEVTYPE=$DEVTYPE vamos:wayland /bin/bash
 ```
 
 ## Using your own events
@@ -38,3 +46,4 @@ xhost +
 
 Warning: this will disable all X11 permisisons checking on your system,
 so you may want run `xhost -` (or reboot).
+
