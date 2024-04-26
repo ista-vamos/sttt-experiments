@@ -15,10 +15,15 @@ if [ ! -c "$DEV" ]; then
 	exit 1
 fi
 
+if [ -z "$DEVTYPE" ]; then
+	echo "Set DEVTYPE to either 'touchpad' or 'mouse'"
+	exit 1
+fi
+
 for BUFSIZE in 3; do
 for TAU in 10 30 50; do
 for DELTA in 10 30 50 70 100; do
-for EVENTS in events3.txt; do
+for EVENTS in $DEVTYPE-events{1, 2, 3}.txt; do
 	make BUFSIZE=$BUFSIZE TAU=$TAU DELTA=$DELTA
 	rm monitor.log
 	./run.sh $EVENTS $DEV

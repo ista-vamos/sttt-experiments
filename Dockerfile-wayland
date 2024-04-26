@@ -37,6 +37,7 @@ RUN git clone --depth=1 https://github.com/ista-vamos/vamos -b sttt
 #COPY . /opt/vamos/sttt-experiments
 #WORKDIR /opt/vamos/sttt-experiments
 #RUN git clean -xdf
+WORKDIR /tmp
 WORKDIR /opt/vamos
 RUN git submodule update --init --recursive
 RUN cd vamos-sources && make -C ext wldbg
