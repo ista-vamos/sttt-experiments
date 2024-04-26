@@ -74,5 +74,5 @@ RUN touch /root/.Xauthority
 
 FROM prepare-artifact as artifact
 COPY --from=vamos /opt/vamos /opt/vamos
-WORKDIR /opt/vamos/sttt-experiments
+WORKDIR /opt/vamos/sttt-experiments/wayland
 

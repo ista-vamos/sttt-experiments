@@ -1,7 +1,5 @@
 # Artifact for ,,VAMOS: Middleware for Best-Effort Third-Party Monitoring''
 
-NOTE: this README is available also in HTML or PDF format.
-
 ## Summary
 
 This artifact contains a prototype of a runtime monitoring middleware called
@@ -10,6 +8,9 @@ Third-Party Monitoring_ by Marek Chalupa, Stefanie Muroya Lei, Fabian
 Muehlboeck, and Thomas A. Henzinger. The artifact consist of the software,
 benchmarks discussed in the paper, and a set of scripts to run experiments
 and present the results.
+
+The artifact is split in two:
+1) 
 
 ## Hardware Requirements
 

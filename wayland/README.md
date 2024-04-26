@@ -1,5 +1,9 @@
 # Wayland experiments
 
+This experiments assume you are running a Linux system with the X window graphical sub-system.
+Wayland-based graphical sub-systems are not supported by the scripts,
+but our components should work with these too (automatization TBD).
+
 ## Building the docker image
 
 ```
@@ -20,6 +24,16 @@ DEVTYPE=touchpad           # set to "mouse" if your device is a mouse and not to
 
 docker run --rm -it  --network host -v /tmp/.X11-unix:/tmp/.X11-unix --env DISPLAY=$DISPLAY  --env XDG_RUNTIME_DIR=/tmp --device /dev/dri/card1 --device $DEVICE --env XAUTH="$(xauth list|grep $(uname -n))" --env DEVTYPE=$DEVTYPE vamos:wayland /bin/bash
 ```
+
+## Monitor size and multi-monitor setup
+
+Our scripts automatically try to find out the size of the screen.
+However, if you use a multi-monitor setup, they can get confused.
+In that case,  
+
+The size of the screen for which we pre-generated events may differ from the size
+of the screen you have. If experiments behave weirdly, try recording your own events
+as described below and using those.
 
 ## Using your own events
 
