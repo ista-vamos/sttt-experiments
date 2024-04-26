@@ -5,6 +5,13 @@ set -e
 cd $(dirname $0)
 source ../setup-vars.sh
 
+if [ ! -x ./monitor ]; then
+	echo "Monitor not found, is it compiled?"
+	exit 1
+fi
+
+
+
 if [ ! -f "$1" ]; then
 	echo "First argument is the file with events"
 	exit 1
@@ -21,9 +28,13 @@ fi
 DEV="$2"
 
 
+# get the width and height of the monitor
+# XXX: in multi-monitor setup, this will get the first one, so make sure
+# you run the experiments on this monitor, otherwise the things will get confused
+read WIDTH HEIGHT < <(xrandr --current | grep connected | grep -oP '\d+x\d+' | tr x ' ')
 
-WIDTH=1920
-HEIGHT=1080
+#WIDTH=2560
+#HEIGHT=1440
 APP=weston-terminal
 
 weston --fullscreen --width $WIDTH --height $HEIGHT&
